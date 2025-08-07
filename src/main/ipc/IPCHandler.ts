@@ -1,4 +1,20 @@
-// Main process IPC handler implementation
+/**
+ * Main process IPC handler implementation
+ * 
+ * This class handles all IPC communication between the main process and renderer process.
+ * It provides handlers for:
+ * - File system operations (read, write, delete, watch, etc.)
+ * - Process management (execute commands, manage terminals)
+ * - Workspace management (save, load, recent projects)
+ * - Build and test operations
+ * - Toolchain detection and validation
+ * 
+ * All handlers follow a consistent pattern:
+ * 1. Validate the incoming request
+ * 2. Execute the operation using the appropriate service
+ * 3. Return a standardized response with success/error information
+ * 4. Include suggested actions for error recovery
+ */
 
 import { ipcMain, IpcMainEvent } from 'electron'
 import {
@@ -21,6 +37,7 @@ export class IPCHandler {
   private fileSystemManager: FileSystemManager
   private processManager: ProcessManager
   private workspaceManager: WorkspaceManager
+  private activeWatchers: Map<string, any> = new Map()
 
   constructor(
     fileSystemManager: FileSystemManager,
@@ -149,14 +166,29 @@ export class IPCHandler {
   }
 
   private async handleFileWatch(data: RequestDataForChannel<typeof IPC_CHANNELS.FILE_WATCH>): Promise<ResponseDataForChannel<typeof IPC_CHANNELS.FILE_WATCH>> {
-    // For now, return a simple watcher ID - full implementation would set up file watching
-    const watcherId = `watcher-${Date.now()}`
-    return { watcherId }
+    try {
+      // Use the first path as the root directory for watching
+      const rootPath = data.paths[0] || process.cwd()
+      const watcher = this.fileSystemManager.watchFiles(data.paths, rootPath)
+      const watcherId = `watcher-${Date.now()}`
+      
+      // Store watcher reference for cleanup
+      this.activeWatchers.set(watcherId, watcher)
+      
+      return { watcherId }
+    } catch (error) {
+      throw new Error(`Failed to start file watcher: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
   private async handleFileUnwatch(data: RequestDataForChannel<typeof IPC_CHANNELS.FILE_UNWATCH>): Promise<ResponseDataForChannel<typeof IPC_CHANNELS.FILE_UNWATCH>> {
-    // Implementation would remove the file watcher
-    return { unwatched: true }
+    const watcher = this.activeWatchers.get(data.watcherId)
+    if (watcher) {
+      watcher.close()
+      this.activeWatchers.delete(data.watcherId)
+      return { unwatched: true }
+    }
+    return { unwatched: false }
   }
 
   private async handleDirCreate(data: RequestDataForChannel<typeof IPC_CHANNELS.DIR_CREATE>): Promise<ResponseDataForChannel<typeof IPC_CHANNELS.DIR_CREATE>> {
@@ -547,9 +579,19 @@ export class IPCHandler {
   }
 
   /**
-   * Cleanup method to remove all IPC handlers
+   * Cleanup method to remove all IPC handlers and active watchers
    */
   cleanup(): void {
+    // Clean up all active file watchers
+    for (const watcher of this.activeWatchers.values()) {
+      try {
+        watcher.close()
+      } catch (error) {
+        console.warn('Error closing file watcher:', error)
+      }
+    }
+    this.activeWatchers.clear()
+
     // Remove all registered handlers
     Object.values(IPC_CHANNELS).forEach(channel => {
       ipcMain.removeAllListeners(channel)

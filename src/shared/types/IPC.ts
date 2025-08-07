@@ -471,8 +471,9 @@ export interface TestProgressEvent {
 export interface TerminalOutputEvent {
   terminalId: string
   data: string
-}// Type-saf
-e IPC wrapper functions and utilities
+}
+
+// Type-safe IPC wrapper functions and utilities
 
 // Channel type mapping for type safety
 export interface IPCChannelMap {

@@ -83,6 +83,10 @@
 
 
 
+
+
+
+
   - Implement client-side IPC wrapper with Promise-based API
   - Add error handling and retry logic for IPC calls
   - Create TypeScript definitions for exposed APIs

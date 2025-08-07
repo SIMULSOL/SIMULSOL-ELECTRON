@@ -85,6 +85,32 @@ describe('IPCHandler', () => {
   })
 
   describe('File System Handlers', () => {
+    it('should handle file watching requests', async () => {
+      const mockWatcher = {
+        close: vi.fn(),
+        on: vi.fn(),
+        emit: vi.fn()
+      }
+      mockFileSystemManager.watchFiles = vi.fn().mockReturnValue(mockWatcher)
+
+      const handleCall = (ipcMain.handle as any).mock.calls.find(
+        (call: any) => call[0] === IPC_CHANNELS.FILE_WATCH
+      )
+      const handler = handleCall[1]
+
+      const request = createIPCRequest(IPC_CHANNELS.FILE_WATCH, {
+        paths: ['*.rs', '*.toml'],
+        options: { recursive: true }
+      })
+      const mockEvent = {} as any
+
+      const response = await handler(mockEvent, request)
+
+      expect(response.success).toBe(true)
+      expect(response.data.watcherId).toBeDefined()
+      expect(response.data.watcherId).toMatch(/^watcher-\d+$/)
+    })
+
     it('should handle file read requests', async () => {
       const mockContent = 'test file content'
       mockFileSystemManager.readFile = vi.fn().mockResolvedValue(mockContent)
@@ -225,7 +251,15 @@ describe('IPCHandler', () => {
       const mockWorkspace = {
         activeProject: '/test/project',
         openFiles: [],
-        layout: { panels: [], sidebarWidth: 250, bottomPanelHeight: 200, isBottomPanelVisible: true, isSidebarVisible: true },
+        layout: { 
+          panels: [], 
+          sidebarWidth: 250, 
+          bottomPanelHeight: 200, 
+          isBottomPanelVisible: true, 
+          isSidebarVisible: true,
+          splitterPositions: { sidebar: 250, bottomPanel: 200 },
+          activePanel: 'explorer'
+        },
         terminalSessions: [],
         preferences: {
           theme: 'dark' as const,
@@ -267,7 +301,15 @@ describe('IPCHandler', () => {
       const mockWorkspace = {
         activeProject: '/test/project',
         openFiles: [],
-        layout: { panels: [], sidebarWidth: 250, bottomPanelHeight: 200, isBottomPanelVisible: true, isSidebarVisible: true },
+        layout: { 
+          panels: [], 
+          sidebarWidth: 250, 
+          bottomPanelHeight: 200, 
+          isBottomPanelVisible: true, 
+          isSidebarVisible: true,
+          splitterPositions: { sidebar: 250, bottomPanel: 200 },
+          activePanel: 'explorer'
+        },
         terminalSessions: [],
         preferences: {
           theme: 'dark' as const,

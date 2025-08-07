@@ -1,0 +1,23 @@
+{
+  "enabled": true,
+  "name": "Auto Git Commit",
+  "description": "Automatically commits file changes to GitHub with appropriate commit messages when a task or subtask is completed. Performs git add, git commit, and git push for individual files.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*.ts",
+      "src/**/*.js",
+      "src/**/*.tsx",
+      "src/**/*.jsx",
+      "*.ts",
+      "*.js",
+      "*.json",
+      "*.md"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A file has been modified as part of completing a task or subtask. Please commit this change to the GitHub repository. Use git add to stage the specific changed file, then git commit with a descriptive message that explains what was accomplished in that file (e.g., \"implement new state\", \"add error handling\", \"update configuration\"), and finally git push to upload to GitHub. Make this a single commit for the individual file, not a batch commit."
+  }
+}
