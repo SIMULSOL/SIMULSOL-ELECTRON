@@ -1,6 +1,6 @@
 # Product Overview
 
-This is a Solana IDE - a comprehensive desktop development environment specifically designed for Solana blockchain development. Built on Electron with React and TypeScript, it transforms a basic desktop application into a full-featured IDE that supports Solana program development, testing, and deployment workflows.
+This is a SIMUSOL - a comprehensive desktop development environment specifically designed for Solana blockchain development. Built on Electron with React and TypeScript, it transforms a basic desktop application into a full-featured IDE that supports Solana program development, testing, and deployment workflows.
 
 ## Key Features
 

@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve Solana IDE
+about: Create a report to help us improve SIMUSOL
 title: '[BUG] '
 labels: 'bug'
 assignees: ''
@@ -33,7 +33,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Desktop:**
 - OS: [e.g. Windows 11, macOS 13.0, Ubuntu 22.04]
-- Solana IDE Version: [e.g. 1.0.0]
+- SIMUSOL Version: [e.g. 1.0.0]
 - Node.js Version: [e.g. 18.17.0]
 - Solana CLI Version: [e.g. 1.16.0]
 

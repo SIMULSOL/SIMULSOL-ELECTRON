@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Solana IDE Core feature provides developers with a comprehensive desktop development environment specifically designed for Solana blockchain development. This feature transforms the basic Electron application into a full-featured IDE that supports Solana program development, testing, and deployment workflows. The IDE will include essential tools such as code editing with Solana-specific syntax highlighting, project management, integrated terminal, and Solana program compilation and testing capabilities.
+The SIMUSOL Core feature provides developers with a comprehensive desktop development environment specifically designed for Solana blockchain development. This feature transforms the basic Electron application into a full-featured IDE that supports Solana program development, testing, and deployment workflows. The IDE will include essential tools such as code editing with Solana-specific syntax highlighting, project management, integrated terminal, and Solana program compilation and testing capabilities.
 
 ## Requirements
 

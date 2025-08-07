@@ -34,8 +34,8 @@ const SampleSidebar: React.FC = () => {
 
 const SampleMainContent: React.FC = () => (
   <div style={{ padding: '16px', height: '100%', backgroundColor: '#1e1e1e' }}>
-    <h2>Solana IDE Core</h2>
-    <p>Welcome to the Solana IDE! This is the main content area where your code editor will be.</p>
+    <h2>SIMUSOL Core</h2>
+    <p>Welcome to the SIMUSOL! This is the main content area where your code editor will be.</p>
     <Versions />
   </div>
 )
@@ -103,7 +103,7 @@ const IDEContent: React.FC = () => {
         window.open('https://docs.solana.com', '_blank')
         break
       case 'help.about':
-        alert('Solana IDE Core v1.0.0\nA comprehensive development environment for Solana programs.')
+        alert('SIMUSOL Core v1.0.0\nA comprehensive development environment for Solana programs.')
         break
       
       default:
@@ -203,7 +203,7 @@ const IDEContent: React.FC = () => {
 
 function App(): React.JSX.Element {
   return (
-    <LayoutProvider persistKey="solana-ide-layout">
+    <LayoutProvider persistKey="simulsol-layout">
       <IDEContent />
     </LayoutProvider>
   )

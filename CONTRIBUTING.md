@@ -1,6 +1,6 @@
-# Contributing to Solana IDE
+# Contributing to SIMUSOL
 
-Thank you for your interest in contributing to Solana IDE! We welcome contributions from the community and are excited to work with you to make Solana development more accessible and efficient.
+Thank you for your interest in contributing to SIMUSOL! We welcome contributions from the community and are excited to work with you to make Solana development more accessible and efficient.
 
 ## Table of Contents
 
@@ -16,7 +16,7 @@ Thank you for your interest in contributing to Solana IDE! We welcome contributi
 
 ## Code of Conduct
 
-This project and everyone participating in it is governed by our [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [conduct@solana-ide.dev](mailto:conduct@solana-ide.dev).
+This project and everyone participating in it is governed by our [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [conduct@simulsol.dev](mailto:conduct@simulsol.dev).
 
 ## Getting Started
 
@@ -35,13 +35,13 @@ Before you begin, ensure you have the following installed:
 1. **Fork the repository**
    ```bash
    # Fork the repo on GitHub, then clone your fork
-   git clone https://github.com/YOUR_USERNAME/solana-ide.git
-   cd solana-ide
+   git clone https://github.com/YOUR_USERNAME/simulsol.git
+   cd simulsol
    ```
 
 2. **Add upstream remote**
    ```bash
-   git remote add upstream https://github.com/your-org/solana-ide.git
+   git remote add upstream https://github.com/your-org/simulsol.git
    ```
 
 3. **Install dependencies**
@@ -68,7 +68,7 @@ Before you begin, ensure you have the following installed:
 
 ### Reporting Bugs
 
-Before creating bug reports, please check the [existing issues](https://github.com/your-org/solana-ide/issues) to avoid duplicates.
+Before creating bug reports, please check the [existing issues](https://github.com/your-org/simulsol/issues) to avoid duplicates.
 
 When creating a bug report, include:
 
@@ -79,7 +79,7 @@ When creating a bug report, include:
 - **Environment details**:
   - OS version
   - Node.js version
-  - Solana IDE version
+  - SIMUSOL version
   - Solana CLI version
 
 Use our [bug report template](.github/ISSUE_TEMPLATE/bug_report.md).
@@ -88,7 +88,7 @@ Use our [bug report template](.github/ISSUE_TEMPLATE/bug_report.md).
 
 We welcome feature suggestions! Please:
 
-1. Check [existing feature requests](https://github.com/your-org/solana-ide/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement)
+1. Check [existing feature requests](https://github.com/your-org/simulsol/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement)
 2. Use our [feature request template](.github/ISSUE_TEMPLATE/feature_request.md)
 3. Provide detailed use cases and rationale
 4. Consider implementation complexity and maintenance burden
@@ -355,9 +355,9 @@ async function compileProgram(
 
 ### Getting Help
 
-- **Discord**: Join our [Discord server](https://discord.gg/solana-ide) for real-time discussion
-- **GitHub Discussions**: Use [GitHub Discussions](https://github.com/your-org/solana-ide/discussions) for questions and ideas
-- **Issues**: Create [GitHub issues](https://github.com/your-org/solana-ide/issues) for bugs and feature requests
+- **Discord**: Join our [Discord server](https://discord.gg/simulsol) for real-time discussion
+- **GitHub Discussions**: Use [GitHub Discussions](https://github.com/your-org/simulsol/discussions) for questions and ideas
+- **Issues**: Create [GitHub issues](https://github.com/your-org/simulsol/issues) for bugs and feature requests
 
 ### Communication Guidelines
 
@@ -394,8 +394,8 @@ We follow [Semantic Versioning](https://semver.org/):
 If you have questions about contributing, please:
 
 1. Check this document and existing issues
-2. Ask in our [Discord server](https://discord.gg/solana-ide)
-3. Create a [GitHub Discussion](https://github.com/your-org/solana-ide/discussions)
-4. Email us at [contributors@solana-ide.dev](mailto:contributors@solana-ide.dev)
+2. Ask in our [Discord server](https://discord.gg/simulsol)
+3. Create a [GitHub Discussion](https://github.com/your-org/simulsol/discussions)
+4. Email us at [contributors@simulsol.dev](mailto:contributors@simulsol.dev)
 
-Thank you for contributing to Solana IDE! 🚀
+Thank you for contributing to SIMUSOL! 🚀

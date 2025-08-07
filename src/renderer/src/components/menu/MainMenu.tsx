@@ -302,7 +302,7 @@ const MENU_STRUCTURE: MenuAction[] = [
       { id: 'separator11', label: '', separator: true },
       {
         id: 'help.about',
-        label: 'About Solana IDE',
+        label: 'About SIMUSOL',
         icon: 'ℹ️'
       }
     ]

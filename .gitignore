@@ -4,6 +4,6 @@ out
 .DS_Store
 .eslintcache
 *.log*
-.kiro/specs/solana-ide-core
+.kiro/specs/simulsol-core
 .vscode
 
