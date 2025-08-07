@@ -1,6 +1,6 @@
 # SIMULSOL
 
-A comprehensive desktop development environment specifically designed for Solana blockchain development. Built on Electron with React and TypeScript, Solana IDE provides developers with all the tools they need to build, test, and deploy Solana programs efficiently.
+A comprehensive desktop development environment specifically designed for Solana blockchain development. Built on Electron with React and TypeScript, SIMUSOL provides developers with all the tools they need to build, test, and deploy Solana programs efficiently.
 
 ![SIMULSOL Screenshot](resources/screenshot.png)
 
@@ -10,7 +10,7 @@ A comprehensive desktop development environment specifically designed for Solana
 - **Project Templates**: Quick-start templates for Anchor, native, and token programs
 - **Solana CLI Integration**: Built-in Solana CLI commands with auto-completion
 - **Program Deployment**: Deploy directly to devnet, testnet, or mainnet
-- **Wallet Integration**: Connect and manage Solana wallets
+- **Wallet Integration**: Connect and manage Solana wallets (Beta)
 
 ### 📝 Advanced Code Editing
 - **Rust Language Support**: Full Rust syntax highlighting and IntelliSense
@@ -56,15 +56,15 @@ A comprehensive desktop development environment specifically designed for Solana
 
 #### Download Release
 Download the latest release for your platform:
-- [Windows](https://github.com/your-org/solana-ide/releases/latest/download/solana-ide-setup.exe)
-- [macOS](https://github.com/your-org/solana-ide/releases/latest/download/solana-ide.dmg)
-- [Linux](https://github.com/your-org/solana-ide/releases/latest/download/solana-ide.AppImage)
+- [Windows](https://github.com/SIMULSOL/SIMULSOL-ELECTRON/releases/latest/download/simulsol-setup.exe)
+- [macOS](https://github.com/SIMULSOL/SIMULSOL-ELECTRON/releases/latest/download/simulsol.dmg)
+- [Linux](https://github.com/SIMULSOL/SIMULSOL-ELECTRON/releases/latest/download/simulsol.AppImage)
 
 #### Build from Source
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/solana-ide.git
-cd solana-ide
+git clone https://github.com/SIMULSOL/SIMULSOL-ELECTRON.git
+cd simulsol
 
 # Install dependencies
 npm install
@@ -165,7 +165,7 @@ npm run format
 
 ## Architecture
 
-Solana IDE is built using modern web technologies:
+SIMUSOL is built using modern web technologies:
 
 - **Electron**: Cross-platform desktop application framework
 - **React**: User interface library with hooks and context
@@ -223,10 +223,10 @@ Solana IDE is built using modern web technologies:
 
 ### Getting Help
 
-- 📖 [Documentation](https://docs.solana-ide.dev)
-- 💬 [Discord Community](https://discord.gg/solana-ide)
-- 🐛 [Report Issues](https://github.com/your-org/solana-ide/issues)
-- 📧 [Contact Support](mailto:support@solana-ide.dev)
+- 📖 [Documentation](https://docs.simulsol.dev)
+- 💬 [Discord Community](https://discord.gg/simulsol)
+- 🐛 [Report Issues](https://github.com/SIMULSOL/SIMULSOL-ELECTRON/issues)
+- 📧 [Contact Support](mailto:support@simulsol.dev)
 
 ## License
 
