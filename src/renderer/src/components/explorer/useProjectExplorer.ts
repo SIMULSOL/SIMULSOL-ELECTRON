@@ -1,12 +1,19 @@
 import { useState, useCallback, useEffect } from 'react'
 import { FileNode } from './ProjectExplorer'
 
+export interface ProjectValidationError {
+  file: string
+  message: string
+  suggestion: string
+}
+
 export interface ProjectExplorerState {
   files: FileNode[]
   selectedFiles: string[]
   projectPath: string | null
   isLoading: boolean
   error: string | null
+  validationErrors: ProjectValidationError[]
 }
 
 export interface ProjectExplorerActions {
@@ -18,6 +25,7 @@ export interface ProjectExplorerActions {
   deleteFile: (filePath: string) => Promise<void>
   renameFile: (oldPath: string, newName: string) => Promise<void>
   clearSelection: () => void
+  validateProject: () => void
 }
 
 export const useProjectExplorer = (): [ProjectExplorerState, ProjectExplorerActions] => {
@@ -26,11 +34,69 @@ export const useProjectExplorer = (): [ProjectExplorerState, ProjectExplorerActi
     selectedFiles: [],
     projectPath: null,
     isLoading: false,
-    error: null
+    error: null,
+    validationErrors: []
   })
 
   const updateState = useCallback((updates: Partial<ProjectExplorerState>) => {
     setState(prev => ({ ...prev, ...updates }))
+  }, [])
+
+  const validateProjectConfiguration = useCallback((files: FileNode[]): ProjectValidationError[] => {
+    const errors: ProjectValidationError[] = []
+    const fileNames = new Set<string>()
+    
+    // Collect all file names recursively
+    const collectFileNames = (nodes: FileNode[]) => {
+      nodes.forEach(node => {
+        fileNames.add(node.name)
+        if (node.children) {
+          collectFileNames(node.children)
+        }
+      })
+    }
+    collectFileNames(files)
+    
+    // Check for required Solana project files
+    if (!fileNames.has('Cargo.toml')) {
+      errors.push({
+        file: 'Cargo.toml',
+        message: 'Missing Cargo.toml file - required for Rust/Solana projects',
+        suggestion: 'Create a Cargo.toml file with proper Solana dependencies. Use "cargo init" or create from template.'
+      })
+    }
+    
+    // Check for Anchor project structure
+    const hasAnchorToml = fileNames.has('Anchor.toml')
+    const hasAnchorPrograms = fileNames.has('programs')
+    
+    if (hasAnchorToml && !hasAnchorPrograms) {
+      errors.push({
+        file: 'programs/',
+        message: 'Anchor.toml found but missing programs directory',
+        suggestion: 'Create a "programs" directory to contain your Anchor programs, or remove Anchor.toml if this is not an Anchor project.'
+      })
+    }
+    
+    // Check for src directory in Rust projects
+    if (fileNames.has('Cargo.toml') && !fileNames.has('src')) {
+      errors.push({
+        file: 'src/',
+        message: 'Missing src directory - required for Rust projects',
+        suggestion: 'Create a "src" directory with a lib.rs or main.rs file to define your program entry point.'
+      })
+    }
+    
+    // Check for conflicting project types
+    if (hasAnchorToml && fileNames.has('src') && !hasAnchorPrograms) {
+      errors.push({
+        file: 'Project Structure',
+        message: 'Mixed project structure detected - both Anchor and native Rust files',
+        suggestion: 'Choose either Anchor framework (use programs/ directory) or native Solana development (use src/ directory), not both.'
+      })
+    }
+    
+    return errors
   }, [])
 
   const loadProjectStructure = useCallback(async (projectPath: string): Promise<FileNode[]> => {
@@ -97,15 +163,18 @@ export const useProjectExplorer = (): [ProjectExplorerState, ProjectExplorerActi
   }, [])
 
   const loadProject = useCallback(async (projectPath: string) => {
-    updateState({ isLoading: true, error: null })
+    updateState({ isLoading: true, error: null, validationErrors: [] })
     
     try {
       const files = await loadProjectStructure(projectPath)
+      const validationErrors = validateProjectConfiguration(files)
+      
       updateState({
         files,
         projectPath,
         isLoading: false,
-        selectedFiles: []
+        selectedFiles: [],
+        validationErrors
       })
     } catch (error) {
       updateState({
@@ -113,7 +182,7 @@ export const useProjectExplorer = (): [ProjectExplorerState, ProjectExplorerActi
         error: error instanceof Error ? error.message : 'Failed to load project'
       })
     }
-  }, [loadProjectStructure, updateState])
+  }, [loadProjectStructure, validateProjectConfiguration, updateState])
 
   const refreshProject = useCallback(async () => {
     if (state.projectPath) {
@@ -235,6 +304,13 @@ export const useProjectExplorer = (): [ProjectExplorerState, ProjectExplorerActi
     updateState({ selectedFiles: [] })
   }, [updateState])
 
+  const validateProject = useCallback(() => {
+    if (state.files.length > 0) {
+      const validationErrors = validateProjectConfiguration(state.files)
+      updateState({ validationErrors })
+    }
+  }, [state.files, validateProjectConfiguration, updateState])
+
   // Auto-load project if projectPath is set
   useEffect(() => {
     if (state.projectPath && state.files.length === 0 && !state.isLoading) {
@@ -250,7 +326,8 @@ export const useProjectExplorer = (): [ProjectExplorerState, ProjectExplorerActi
     createFile,
     deleteFile,
     renameFile,
-    clearSelection
+    clearSelection,
+    validateProject
   }
 
   return [state, actions]
