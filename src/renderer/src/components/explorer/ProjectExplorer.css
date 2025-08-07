@@ -115,6 +115,14 @@
   border-left: 3px solid #61dafb;
 }
 
+.explorer-node.solana-deploy {
+  border-left: 3px solid #00d4aa;
+}
+
+.explorer-node.solana-idl {
+  border-left: 3px solid #ffa500;
+}
+
 .expand-icon {
   display: inline-block;
   width: 12px;
@@ -317,6 +325,68 @@
   .context-menu {
     border-width: 2px;
   }
+}
+
+/* Validation Errors */
+.validation-errors {
+  background-color: var(--bg-warning, #332a00);
+  border: 1px solid var(--border-warning, #ffcc00);
+  border-radius: 4px;
+  margin: 8px 12px;
+  padding: 0;
+  font-size: 12px;
+}
+
+.validation-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: var(--bg-warning-header, #3d3000);
+  border-bottom: 1px solid var(--border-warning, #ffcc00);
+  border-radius: 4px 4px 0 0;
+}
+
+.validation-icon {
+  margin-right: 6px;
+  font-size: 14px;
+}
+
+.validation-title {
+  flex: 1;
+  font-weight: 600;
+  color: var(--text-warning, #ffcc00);
+}
+
+.validation-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.validation-error {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-warning-light, #4d4000);
+}
+
+.validation-error:last-child {
+  border-bottom: none;
+}
+
+.error-file {
+  font-weight: 600;
+  color: var(--text-warning, #ffcc00);
+  margin-bottom: 4px;
+}
+
+.error-message {
+  color: var(--text-primary, #cccccc);
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.error-suggestion {
+  color: var(--text-muted, #969696);
+  font-style: italic;
+  line-height: 1.4;
 }
 
 /* Reduced motion support */
