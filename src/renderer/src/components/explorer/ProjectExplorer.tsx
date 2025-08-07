@@ -15,16 +15,20 @@ export interface FileNode {
   }
 }
 
+import { ProjectValidationError } from './useProjectExplorer'
+
 export interface ProjectExplorerProps {
   projectPath?: string
   files: FileNode[]
   selectedFiles: string[]
+  validationErrors?: ProjectValidationError[]
   onFileSelect: (filePath: string, isMultiSelect?: boolean) => void
   onFileOpen: (filePath: string) => void
   onFileCreate: (parentPath: string, name: string, type: 'file' | 'directory') => Promise<void>
   onFileDelete: (filePath: string) => Promise<void>
   onFileRename: (oldPath: string, newName: string) => Promise<void>
   onRefresh: () => Promise<void>
+  onValidateProject?: () => void
   className?: string
 }
 
@@ -37,12 +41,14 @@ interface ContextMenuState {
 }
 
 const FILE_ICONS: Record<string, string> = {
-  // Solana specific
+  // Solana specific files
   '.rs': '🦀',
   '.toml': '⚙️',
   '.json': '📋',
   '.yaml': '📄',
   '.yml': '📄',
+  '.so': '⚡', // Solana program binary
+  '.keypair': '🔑',
   
   // Web
   '.ts': '📘',
@@ -62,24 +68,49 @@ const FILE_ICONS: Record<string, string> = {
   '.gitignore': '🚫',
   '.gitattributes': '📋',
   
-  // Build
+  // Solana-specific build files
   'Cargo.toml': '📦',
   'Cargo.lock': '🔒',
+  'Anchor.toml': '⚓',
+  'deploy.js': '🚀',
+  'deploy.ts': '🚀',
+  'localnet.json': '🌐',
+  'devnet.json': '🌐',
+  'mainnet.json': '🌐',
+  
+  // General build files
   'package.json': '📦',
   'package-lock.json': '🔒',
-  'Anchor.toml': '⚓',
   'tsconfig.json': '📘',
+  'yarn.lock': '🔒',
+  
+  // IDL files
+  '.idl': '📜',
   
   // Default
   'directory': '📁',
   'file': '📄'
 }
 
-const getSolanaFileType = (fileName: string): 'solana' | 'anchor' | 'rust' | 'config' | 'other' => {
-  if (fileName === 'Anchor.toml' || fileName.includes('anchor')) return 'anchor'
+const getSolanaFileType = (fileName: string): 'solana' | 'anchor' | 'rust' | 'config' | 'deploy' | 'idl' | 'other' => {
+  // Anchor-specific files
+  if (fileName === 'Anchor.toml' || fileName.includes('anchor') || fileName.includes('Anchor')) return 'anchor'
+  
+  // Deployment scripts
+  if (fileName.startsWith('deploy.') || fileName.includes('deploy')) return 'deploy'
+  
+  // IDL files (Interface Definition Language)
+  if (fileName.endsWith('.idl') || fileName.includes('.idl.')) return 'idl'
+  
+  // Rust/Cargo files
   if (fileName === 'Cargo.toml' || fileName === 'Cargo.lock') return 'rust'
-  if (fileName.endsWith('.rs')) return 'solana'
-  if (fileName.endsWith('.toml') || fileName.endsWith('.json')) return 'config'
+  
+  // Solana program files
+  if (fileName.endsWith('.rs') || fileName.endsWith('.so') || fileName.endsWith('.keypair')) return 'solana'
+  
+  // Configuration files
+  if (fileName.endsWith('.toml') || fileName.endsWith('.json') || fileName.endsWith('.yaml') || fileName.endsWith('.yml')) return 'config'
+  
   return 'other'
 }
 
@@ -96,12 +127,14 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
   projectPath,
   files,
   selectedFiles,
+  validationErrors = [],
   onFileSelect,
   onFileOpen,
   onFileCreate,
   onFileDelete,
   onFileRename,
   onRefresh,
+  onValidateProject,
   className = ''
 }) => {
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
@@ -401,6 +434,33 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
           </button>
         </div>
       </div>
+      
+      {validationErrors.length > 0 && (
+        <div className="validation-errors">
+          <div className="validation-header">
+            <span className="validation-icon">⚠️</span>
+            <span className="validation-title">Project Configuration Issues</span>
+            {onValidateProject && (
+              <button
+                className="action-button"
+                onClick={onValidateProject}
+                title="Re-validate Project"
+              >
+                🔍
+              </button>
+            )}
+          </div>
+          <div className="validation-list">
+            {validationErrors.map((error, index) => (
+              <div key={index} className="validation-error">
+                <div className="error-file">{error.file}</div>
+                <div className="error-message">{error.message}</div>
+                <div className="error-suggestion">{error.suggestion}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       
       <div className="explorer-content">
         {files.length === 0 ? (
