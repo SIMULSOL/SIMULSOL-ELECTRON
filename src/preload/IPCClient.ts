@@ -229,6 +229,71 @@ export class IPCClient {
     return wrapper.sendWithRetry(data, maxAttempts)
   }
 
+  // Enhanced error handling with recovery suggestions
+  async sendRequestWithRecovery<T extends IPCChannelName>(
+    channel: T,
+    data: RequestDataForChannel<T>,
+    options?: {
+      timeout?: number
+      maxAttempts?: number
+      onRetry?: (attempt: number, error: IPCRequestError) => void
+      onRecovery?: (error: IPCRequestError) => Promise<boolean>
+    }
+  ): Promise<ResponseDataForChannel<T>> {
+    const {
+      timeout = IPC_TIMEOUT.DEFAULT,
+      maxAttempts = 3,
+      onRetry,
+      onRecovery
+    } = options || {}
+
+    let lastError: IPCRequestError | null = null
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        return await this.sendRequest(channel, data, timeout)
+      } catch (error) {
+        if (error instanceof IPCRequestError) {
+          lastError = error
+          
+          // Call retry callback if provided
+          if (onRetry) {
+            onRetry(attempt, error)
+          }
+
+          // If this is the last attempt or error is not recoverable, try recovery
+          if (attempt === maxAttempts || !error.isRecoverable()) {
+            if (onRecovery) {
+              const recovered = await onRecovery(error)
+              if (recovered && attempt < maxAttempts) {
+                continue // Try again after recovery
+              }
+            }
+            throw error
+          }
+
+          // Wait before retry with exponential backoff
+          const delay = 1000 * Math.pow(2, attempt - 1)
+          await new Promise(resolve => setTimeout(resolve, delay))
+        } else {
+          throw new IPCRequestError({
+            code: 'UNKNOWN_ERROR',
+            message: error instanceof Error ? error.message : String(error),
+            recoverable: true,
+            suggestedActions: ['Check network connection', 'Retry the operation']
+          })
+        }
+      }
+    }
+
+    throw lastError || new IPCRequestError({
+      code: 'UNKNOWN_ERROR',
+      message: 'All retry attempts failed',
+      recoverable: false,
+      suggestedActions: ['Check system status', 'Restart the application']
+    })
+  }
+
   // Get request queue status
   getQueueStatus(): { active: number; queued: number } {
     return {
