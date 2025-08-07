@@ -1,0 +1,275 @@
+.toolbar {
+  background-color: var(--bg-secondary, #252526);
+  border-bottom: 1px solid var(--border-color, #3c3c3c);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 12px;
+  user-select: none;
+  z-index: 999;
+}
+
+.toolbar-content {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  gap: 2px;
+  min-height: 32px;
+}
+
+.toolbar-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: var(--text-primary, #cccccc);
+  gap: 4px;
+  min-height: 24px;
+  box-sizing: border-box;
+}
+
+.toolbar-button:hover:not(.disabled) {
+  background-color: var(--bg-hover, #3c3c3c);
+}
+
+.toolbar-button.active {
+  background-color: var(--accent-color, #007acc);
+  color: white;
+}
+
+.toolbar-button.disabled {
+  color: var(--text-muted, #969696);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.toolbar-button.has-dropdown {
+  padding-right: 6px;
+}
+
+.toolbar-button-icon {
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.toolbar-button-label {
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  margin-left: 2px;
+}
+
+.toolbar-button-arrow {
+  font-size: 8px;
+  margin-left: 2px;
+  color: var(--text-muted, #969696);
+  transition: transform 0.2s ease;
+}
+
+.toolbar-button.active .toolbar-button-arrow {
+  transform: rotate(180deg);
+}
+
+.toolbar-separator {
+  width: 1px;
+  height: 20px;
+  background-color: var(--border-color, #3c3c3c);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.toolbar-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: var(--bg-secondary, #252526);
+  border: 1px solid var(--border-color, #3c3c3c);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  min-width: 160px;
+  z-index: 1000;
+  padding: 4px 0;
+  margin-top: 2px;
+}
+
+.toolbar-dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: var(--text-primary, #cccccc);
+  gap: 8px;
+  min-height: 24px;
+}
+
+.toolbar-dropdown-item:hover:not(.disabled) {
+  background-color: var(--bg-hover, #3c3c3c);
+}
+
+.toolbar-dropdown-item.disabled {
+  color: var(--text-muted, #969696);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.toolbar-dropdown-icon {
+  font-size: 14px;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.toolbar-dropdown-label {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.toolbar-dropdown-separator {
+  height: 1px;
+  background-color: var(--border-color, #3c3c3c);
+  margin: 4px 8px;
+}
+
+/* Animation for dropdown appearance */
+.toolbar-dropdown {
+  animation: slideDown 0.15s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Focus styles for accessibility */
+.toolbar-button:focus {
+  outline: 2px solid var(--accent-color, #007acc);
+  outline-offset: 2px;
+}
+
+.toolbar-dropdown-item:focus {
+  outline: none;
+  background-color: var(--accent-color, #007acc);
+  color: white;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .toolbar-button.active {
+    background-color: #ffffff;
+    color: #000000;
+  }
+  
+  .toolbar-dropdown {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .toolbar-button,
+  .toolbar-dropdown-item,
+  .toolbar-button-arrow {
+    transition: none;
+  }
+  
+  .toolbar-dropdown {
+    animation: none;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .toolbar-content {
+    padding: 2px 4px;
+    gap: 1px;
+  }
+  
+  .toolbar-button {
+    padding: 4px 6px;
+    gap: 2px;
+  }
+  
+  .toolbar-button-label {
+    display: none; /* Hide labels on mobile */
+  }
+  
+  .toolbar-dropdown {
+    min-width: 140px;
+  }
+  
+  .toolbar-dropdown-item {
+    padding: 8px 10px;
+  }
+}
+
+/* Compact mode */
+.toolbar.compact .toolbar-button-label {
+  display: none;
+}
+
+.toolbar.compact .toolbar-button {
+  padding: 4px;
+  min-width: 24px;
+  justify-content: center;
+}
+
+/* Dark theme variables (default) */
+:root {
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #252526;
+  --bg-hover: #3c3c3c;
+  --text-primary: #cccccc;
+  --text-muted: #969696;
+  --border-color: #3c3c3c;
+  --accent-color: #007acc;
+}
+
+/* Light theme support */
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f8f8;
+  --bg-hover: #e8e8e8;
+  --text-primary: #333333;
+  --text-muted: #666666;
+  --border-color: #d0d0d0;
+  --accent-color: #0078d4;
+}
+
+/* Keyboard navigation improvements */
+.toolbar-button:focus-visible {
+  outline: 2px solid var(--accent-color, #007acc);
+  outline-offset: 2px;
+}
+
+.toolbar-dropdown-item:focus-visible {
+  background-color: var(--accent-color, #007acc);
+  color: white;
+}
+
+/* Loading state for buttons */
+.toolbar-button.loading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.toolbar-button.loading .toolbar-button-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

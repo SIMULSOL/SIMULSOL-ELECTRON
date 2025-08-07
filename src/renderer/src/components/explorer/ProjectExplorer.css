@@ -1,0 +1,334 @@
+.project-explorer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--bg-secondary, #252526);
+  color: var(--text-primary, #cccccc);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 13px;
+  user-select: none;
+}
+
+.explorer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: var(--bg-tertiary, #2d2d30);
+  border-bottom: 1px solid var(--border-color, #3c3c3c);
+  min-height: 32px;
+  box-sizing: border-box;
+}
+
+.explorer-title {
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary, #cccccc);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.explorer-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.action-button {
+  background: none;
+  border: none;
+  color: var(--text-muted, #969696);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 3px;
+  font-size: 12px;
+  line-height: 1;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  min-height: 20px;
+}
+
+.action-button:hover {
+  background-color: var(--bg-hover, #3c3c3c);
+  color: var(--text-primary, #cccccc);
+}
+
+.action-button:active {
+  background-color: var(--bg-active, #4c4c4c);
+}
+
+.explorer-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.explorer-node-container {
+  position: relative;
+}
+
+.explorer-node {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  position: relative;
+  min-height: 22px;
+  white-space: nowrap;
+}
+
+.explorer-node:hover {
+  background-color: var(--bg-hover, #3c3c3c);
+}
+
+.explorer-node.selected {
+  background-color: var(--accent-color, #007acc);
+  color: white;
+}
+
+.explorer-node.drag-target {
+  background-color: var(--accent-color-light, #1e7acc);
+  border: 1px dashed var(--accent-color, #007acc);
+}
+
+/* Solana-specific file type styling */
+.explorer-node.solana-solana {
+  border-left: 3px solid #ff6b35;
+}
+
+.explorer-node.solana-anchor {
+  border-left: 3px solid #9945ff;
+}
+
+.explorer-node.solana-rust {
+  border-left: 3px solid #ce422b;
+}
+
+.explorer-node.solana-config {
+  border-left: 3px solid #61dafb;
+}
+
+.expand-icon {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 4px;
+  font-size: 8px;
+  transition: transform 0.2s ease;
+  color: var(--text-muted, #969696);
+  flex-shrink: 0;
+}
+
+.expand-icon.expanded {
+  transform: rotate(90deg);
+}
+
+.file-icon {
+  margin-right: 6px;
+  font-size: 14px;
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+}
+
+.file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.file-size {
+  margin-left: 8px;
+  font-size: 11px;
+  color: var(--text-muted, #969696);
+  flex-shrink: 0;
+}
+
+.rename-input {
+  flex: 1;
+  background-color: var(--bg-primary, #1e1e1e);
+  border: 1px solid var(--accent-color, #007acc);
+  color: var(--text-primary, #cccccc);
+  padding: 2px 4px;
+  font-size: 13px;
+  font-family: inherit;
+  border-radius: 2px;
+  outline: none;
+}
+
+.explorer-children {
+  position: relative;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--text-muted, #969696);
+}
+
+.empty-state p {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+}
+
+.empty-state button {
+  background-color: var(--accent-color, #007acc);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background-color 0.2s ease;
+}
+
+.empty-state button:hover {
+  background-color: var(--accent-color-dark, #005a9e);
+}
+
+/* Context Menu */
+.context-menu {
+  position: fixed;
+  background-color: var(--bg-secondary, #252526);
+  border: 1px solid var(--border-color, #3c3c3c);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  min-width: 160px;
+  padding: 4px 0;
+  font-size: 13px;
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: var(--text-primary, #cccccc);
+}
+
+.context-menu-item:hover {
+  background-color: var(--bg-hover, #3c3c3c);
+}
+
+.context-menu-separator {
+  height: 1px;
+  background-color: var(--border-color, #3c3c3c);
+  margin: 4px 0;
+}
+
+/* Scrollbar styling */
+.explorer-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.explorer-content::-webkit-scrollbar-track {
+  background: var(--bg-secondary, #252526);
+}
+
+.explorer-content::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb, #424242);
+  border-radius: 4px;
+}
+
+.explorer-content::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover, #4f4f4f);
+}
+
+/* Drag and drop visual feedback */
+.explorer-node[draggable="true"]:active {
+  opacity: 0.5;
+}
+
+/* Focus styles for accessibility */
+.explorer-node:focus {
+  outline: 2px solid var(--accent-color, #007acc);
+  outline-offset: -2px;
+}
+
+.action-button:focus {
+  outline: 2px solid var(--accent-color, #007acc);
+  outline-offset: 2px;
+}
+
+.rename-input:focus {
+  border-color: var(--accent-color-light, #1e7acc);
+  box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.3);
+}
+
+/* Animation for expand/collapse */
+.explorer-children {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .explorer-header {
+    padding: 6px 8px;
+  }
+  
+  .explorer-node {
+    padding: 6px 8px;
+    min-height: 28px;
+  }
+  
+  .file-icon {
+    font-size: 16px;
+    width: 18px;
+  }
+  
+  .context-menu {
+    min-width: 140px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .explorer-node.selected {
+    background-color: #ffffff;
+    color: #000000;
+  }
+  
+  .context-menu {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .expand-icon,
+  .explorer-node,
+  .action-button,
+  .context-menu-item {
+    transition: none;
+  }
+  
+  .explorer-children {
+    animation: none;
+  }
+}
