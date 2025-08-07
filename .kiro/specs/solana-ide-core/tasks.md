@@ -97,10 +97,13 @@
   - Create TypeScript definitions for exposed APIs
   - _Requirements: 1.1, 5.4_
 
-- [-] 4. Implement core UI layout and components
+- [x] 4. Implement core UI layout and components
 
 
-- [-] 4.1 Create IDE layout manager component
+
+
+- [x] 4.1 Create IDE layout manager component
+
 
   - Implement resizable panel layout using React and CSS Grid
   - Add panel management (add, remove, resize) functionality
@@ -108,11 +111,15 @@
   - Write component tests for layout management
   - _Requirements: 1.1, 7.4, 7.6_
 
+
+
 - [ ] 4.2 Build project explorer component
   - Create tree view component for project file structure
   - Implement file operations (create, delete, rename) with context menus
   - Add file type icons and Solana-specific file recognition
   - Write component tests for project explorer functionality
+
+
   - _Requirements: 2.3, 2.4, 2.5_
 
 - [ ] 4.3 Implement main menu and toolbar
