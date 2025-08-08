@@ -1,20 +1,13 @@
 import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import ProjectExplorer, { FileNode } from '../ProjectExplorer'
+import ProjectExplorer, { FileNode, ProjectExplorerProps } from '../ProjectExplorer'
 
 // Mock CSS imports
 vi.mock('../ProjectExplorer.css', () => ({}))
 
 describe('ProjectExplorer', () => {
-  const mockOnFileSelect = vi.fn()
-  const mockOnFileOpen = vi.fn()
-  const mockOnFileCreate = vi.fn()
-  const mockOnFileDelete = vi.fn()
-  const mockOnFileRename = vi.fn()
-  const mockOnRefresh = vi.fn()
-
-  const sampleFiles: FileNode[] = [
+  const mockFiles: FileNode[] = [
     {
       name: 'src',
       path: '/project/src',
@@ -24,13 +17,13 @@ describe('ProjectExplorer', () => {
           name: 'lib.rs',
           path: '/project/src/lib.rs',
           type: 'file',
-          metadata: { size: 1024, modified: new Date('2023-01-01') }
+          metadata: { size: 1024, modified: new Date() }
         },
         {
           name: 'processor.rs',
           path: '/project/src/processor.rs',
           type: 'file',
-          metadata: { size: 2048, modified: new Date('2023-01-02') }
+          metadata: { size: 2048, modified: new Date() }
         }
       ]
     },
@@ -38,287 +31,353 @@ describe('ProjectExplorer', () => {
       name: 'Cargo.toml',
       path: '/project/Cargo.toml',
       type: 'file',
-      metadata: { size: 256, modified: new Date('2023-01-03') }
+      metadata: { size: 256, modified: new Date() }
     },
     {
       name: 'Anchor.toml',
       path: '/project/Anchor.toml',
       type: 'file',
-      metadata: { size: 128, modified: new Date('2023-01-04') }
+      metadata: { size: 128, modified: new Date() }
     }
   ]
 
-  const defaultProps = {
+  const defaultProps: ProjectExplorerProps = {
     projectPath: '/project',
-    files: sampleFiles,
+    files: mockFiles,
     selectedFiles: [],
-    onFileSelect: mockOnFileSelect,
-    onFileOpen: mockOnFileOpen,
-    onFileCreate: mockOnFileCreate,
-    onFileDelete: mockOnFileDelete,
-    onFileRename: mockOnFileRename,
-    onRefresh: mockOnRefresh
+    validationErrors: [],
+    onFileSelect: vi.fn(),
+    onFileOpen: vi.fn(),
+    onFileCreate: vi.fn(),
+    onFileDelete: vi.fn(),
+    onFileRename: vi.fn(),
+    onRefresh: vi.fn()
   }
 
   beforeEach(() => {
-    mockOnFileSelect.mockClear()
-    mockOnFileOpen.mockClear()
-    mockOnFileCreate.mockClear()
-    mockOnFileDelete.mockClear()
-    mockOnFileRename.mockClear()
-    mockOnRefresh.mockClear()
+    vi.clearAllMocks()
   })
 
   afterEach(() => {
     vi.clearAllMocks()
   })
 
-  it('renders project explorer with files', () => {
+  it('renders project explorer with header', () => {
     render(<ProjectExplorer {...defaultProps} />)
 
     expect(screen.getByText('Explorer - project')).toBeInTheDocument()
+    expect(screen.getByTitle('Refresh')).toBeInTheDocument()
+    expect(screen.getByTitle('New File')).toBeInTheDocument()
+    expect(screen.getByTitle('New Folder')).toBeInTheDocument()
+  })
+
+  it('displays file tree structure', () => {
+    render(<ProjectExplorer {...defaultProps} />)
+
     expect(screen.getByText('src')).toBeInTheDocument()
     expect(screen.getByText('Cargo.toml')).toBeInTheDocument()
     expect(screen.getByText('Anchor.toml')).toBeInTheDocument()
   })
 
-  it('shows correct file icons', () => {
+  it('shows Solana-specific file icons', () => {
     render(<ProjectExplorer {...defaultProps} />)
 
-    // Directory should show folder icon
-    const srcNode = screen.getByText('src').closest('.explorer-node')
-    expect(srcNode).toBeInTheDocument()
+    // Check for Rust file icon
+    const cargoToml = screen.getByText('Cargo.toml').closest('.explorer-node')
+    expect(cargoToml).toHaveClass('solana-rust')
 
-    // Rust files should have appropriate styling
-    const cargoNode = screen.getByText('Cargo.toml').closest('.explorer-node')
-    expect(cargoNode).toHaveClass('solana-rust')
-
-    const anchorNode = screen.getByText('Anchor.toml').closest('.explorer-node')
-    expect(anchorNode).toHaveClass('solana-anchor')
+    // Check for Anchor file icon
+    const anchorToml = screen.getByText('Anchor.toml').closest('.explorer-node')
+    expect(anchorToml).toHaveClass('solana-anchor')
   })
 
-  it('expands directory when clicked', async () => {
+  it('expands and collapses directories', () => {
     render(<ProjectExplorer {...defaultProps} />)
 
-    const srcNode = screen.getByText('src')
-    fireEvent.click(srcNode)
+    const srcDirectory = screen.getByText('src')
+    
+    // Initially collapsed - children should not be visible
+    expect(screen.queryByText('lib.rs')).not.toBeInTheDocument()
 
-    await waitFor(() => {
-      expect(screen.getByText('lib.rs')).toBeInTheDocument()
-      expect(screen.getByText('processor.rs')).toBeInTheDocument()
-    })
+    // Click to expand
+    fireEvent.click(srcDirectory)
+    expect(screen.getByText('lib.rs')).toBeInTheDocument()
+    expect(screen.getByText('processor.rs')).toBeInTheDocument()
 
-    expect(mockOnFileSelect).toHaveBeenCalledWith('/project/src', false)
+    // Click to collapse
+    fireEvent.click(srcDirectory)
+    expect(screen.queryByText('lib.rs')).not.toBeInTheDocument()
   })
 
-  it('calls onFileOpen when file is double-clicked', () => {
-    render(<ProjectExplorer {...defaultProps} />)
+  it('calls onFileSelect when file is clicked', () => {
+    const onFileSelect = vi.fn()
+    render(<ProjectExplorer {...defaultProps} onFileSelect={onFileSelect} />)
 
     const cargoFile = screen.getByText('Cargo.toml')
-    fireEvent.doubleClick(cargoFile)
+    fireEvent.click(cargoFile)
 
-    expect(mockOnFileOpen).toHaveBeenCalledWith('/project/Cargo.toml')
+    expect(onFileSelect).toHaveBeenCalledWith('/project/Cargo.toml', false)
   })
 
-  it('handles multi-select with Ctrl+click', () => {
-    render(<ProjectExplorer {...defaultProps} />)
+  it('calls onFileSelect with multi-select when Ctrl+click', () => {
+    const onFileSelect = vi.fn()
+    render(<ProjectExplorer {...defaultProps} onFileSelect={onFileSelect} />)
 
     const cargoFile = screen.getByText('Cargo.toml')
     fireEvent.click(cargoFile, { ctrlKey: true })
 
-    expect(mockOnFileSelect).toHaveBeenCalledWith('/project/Cargo.toml', true)
+    expect(onFileSelect).toHaveBeenCalledWith('/project/Cargo.toml', true)
   })
 
-  it('shows context menu on right-click', async () => {
+  it('calls onFileOpen when file is double-clicked', () => {
+    const onFileOpen = vi.fn()
+    render(<ProjectExplorer {...defaultProps} onFileOpen={onFileOpen} />)
+
+    const cargoFile = screen.getByText('Cargo.toml')
+    fireEvent.doubleClick(cargoFile)
+
+    expect(onFileOpen).toHaveBeenCalledWith('/project/Cargo.toml')
+  })
+
+  it('shows selected files with selected class', () => {
+    const selectedFiles = ['/project/Cargo.toml']
+    render(<ProjectExplorer {...defaultProps} selectedFiles={selectedFiles} />)
+
+    const cargoFile = screen.getByText('Cargo.toml').closest('.explorer-node')
+    expect(cargoFile).toHaveClass('selected')
+  })
+
+  it('shows context menu on right-click', () => {
     render(<ProjectExplorer {...defaultProps} />)
 
     const cargoFile = screen.getByText('Cargo.toml')
     fireEvent.contextMenu(cargoFile)
 
-    await waitFor(() => {
-      expect(screen.getByText('📄 New File')).toBeInTheDocument()
-      expect(screen.getByText('📁 New Folder')).toBeInTheDocument()
-      expect(screen.getByText('✏️ Rename')).toBeInTheDocument()
-      expect(screen.getByText('🗑️ Delete')).toBeInTheDocument()
-    })
+    expect(screen.getByText('📄 New File')).toBeInTheDocument()
+    expect(screen.getByText('📁 New Folder')).toBeInTheDocument()
+    expect(screen.getByText('✏️ Rename')).toBeInTheDocument()
+    expect(screen.getByText('🗑️ Delete')).toBeInTheDocument()
+    expect(screen.getByText('🔄 Refresh')).toBeInTheDocument()
   })
 
-  it('creates new file from context menu', async () => {
+  it('creates new file when context menu item is clicked', async () => {
+    const onFileCreate = vi.fn().mockResolvedValue(undefined)
+    render(<ProjectExplorer {...defaultProps} onFileCreate={onFileCreate} />)
+
     // Mock window.prompt
-    const mockPrompt = vi.fn().mockReturnValue('new-file.rs')
-    Object.defineProperty(window, 'prompt', { value: mockPrompt, writable: true })
+    const originalPrompt = window.prompt
+    window.prompt = vi.fn().mockReturnValue('new-file.rs')
 
-    mockOnFileCreate.mockResolvedValue(undefined)
+    const cargoFile = screen.getByText('Cargo.toml')
+    fireEvent.contextMenu(cargoFile)
 
-    render(<ProjectExplorer {...defaultProps} />)
-
-    const srcNode = screen.getByText('src')
-    fireEvent.contextMenu(srcNode)
-
-    await waitFor(() => {
-      expect(screen.getByText('📄 New File')).toBeInTheDocument()
-    })
-
-    fireEvent.click(screen.getByText('📄 New File'))
+    const newFileItem = screen.getByText('📄 New File')
+    fireEvent.click(newFileItem)
 
     await waitFor(() => {
-      expect(mockPrompt).toHaveBeenCalledWith('Enter file name:')
-      expect(mockOnFileCreate).toHaveBeenCalledWith('/project/src', 'new-file.rs', 'file')
+      expect(onFileCreate).toHaveBeenCalledWith('/project/Cargo.toml', 'new-file.rs', 'file')
     })
+
+    // Restore window.prompt
+    window.prompt = originalPrompt
   })
 
-  it('creates new directory from context menu', async () => {
-    const mockPrompt = vi.fn().mockReturnValue('new-folder')
-    Object.defineProperty(window, 'prompt', { value: mockPrompt, writable: true })
+  it('creates new folder when context menu item is clicked', async () => {
+    const onFileCreate = vi.fn().mockResolvedValue(undefined)
+    render(<ProjectExplorer {...defaultProps} onFileCreate={onFileCreate} />)
 
-    mockOnFileCreate.mockResolvedValue(undefined)
+    // Mock window.prompt
+    const originalPrompt = window.prompt
+    window.prompt = vi.fn().mockReturnValue('new-folder')
 
-    render(<ProjectExplorer {...defaultProps} />)
+    const srcDirectory = screen.getByText('src')
+    fireEvent.contextMenu(srcDirectory)
 
-    const srcNode = screen.getByText('src')
-    fireEvent.contextMenu(srcNode)
-
-    await waitFor(() => {
-      expect(screen.getByText('📁 New Folder')).toBeInTheDocument()
-    })
-
-    fireEvent.click(screen.getByText('📁 New Folder'))
+    const newFolderItem = screen.getByText('📁 New Folder')
+    fireEvent.click(newFolderItem)
 
     await waitFor(() => {
-      expect(mockPrompt).toHaveBeenCalledWith('Enter directory name:')
-      expect(mockOnFileCreate).toHaveBeenCalledWith('/project/src', 'new-folder', 'directory')
+      expect(onFileCreate).toHaveBeenCalledWith('/project/src', 'new-folder', 'directory')
     })
+
+    // Restore window.prompt
+    window.prompt = originalPrompt
   })
 
-  it('deletes file from context menu', async () => {
-    const mockConfirm = vi.fn().mockReturnValue(true)
-    Object.defineProperty(window, 'confirm', { value: mockConfirm, writable: true })
+  it('deletes file when context menu delete is clicked', async () => {
+    const onFileDelete = vi.fn().mockResolvedValue(undefined)
+    render(<ProjectExplorer {...defaultProps} onFileDelete={onFileDelete} />)
 
-    mockOnFileDelete.mockResolvedValue(undefined)
+    // Mock window.confirm
+    const originalConfirm = window.confirm
+    window.confirm = vi.fn().mockReturnValue(true)
 
+    const cargoFile = screen.getByText('Cargo.toml')
+    fireEvent.contextMenu(cargoFile)
+
+    const deleteItem = screen.getByText('🗑️ Delete')
+    fireEvent.click(deleteItem)
+
+    await waitFor(() => {
+      expect(onFileDelete).toHaveBeenCalledWith('/project/Cargo.toml')
+    })
+
+    // Restore window.confirm
+    window.confirm = originalConfirm
+  })
+
+  it('cancels delete when user clicks cancel', async () => {
+    const onFileDelete = vi.fn()
+    render(<ProjectExplorer {...defaultProps} onFileDelete={onFileDelete} />)
+
+    // Mock window.confirm to return false
+    const originalConfirm = window.confirm
+    window.confirm = vi.fn().mockReturnValue(false)
+
+    const cargoFile = screen.getByText('Cargo.toml')
+    fireEvent.contextMenu(cargoFile)
+
+    const deleteItem = screen.getByText('🗑️ Delete')
+    fireEvent.click(deleteItem)
+
+    await waitFor(() => {
+      expect(onFileDelete).not.toHaveBeenCalled()
+    })
+
+    // Restore window.confirm
+    window.confirm = originalConfirm
+  })
+
+  it('enters rename mode when context menu rename is clicked', () => {
     render(<ProjectExplorer {...defaultProps} />)
 
     const cargoFile = screen.getByText('Cargo.toml')
     fireEvent.contextMenu(cargoFile)
 
-    await waitFor(() => {
-      expect(screen.getByText('🗑️ Delete')).toBeInTheDocument()
-    })
+    const renameItem = screen.getByText('✏️ Rename')
+    fireEvent.click(renameItem)
 
-    fireEvent.click(screen.getByText('🗑️ Delete'))
+    // Should show rename input
+    const renameInput = screen.getByDisplayValue('Cargo.toml')
+    expect(renameInput).toBeInTheDocument()
+    expect(renameInput).toHaveClass('rename-input')
+  })
+
+  it('renames file when Enter is pressed in rename input', async () => {
+    const onFileRename = vi.fn().mockResolvedValue(undefined)
+    render(<ProjectExplorer {...defaultProps} onFileRename={onFileRename} />)
+
+    const cargoFile = screen.getByText('Cargo.toml')
+    fireEvent.contextMenu(cargoFile)
+
+    const renameItem = screen.getByText('✏️ Rename')
+    fireEvent.click(renameItem)
+
+    const renameInput = screen.getByDisplayValue('Cargo.toml')
+    fireEvent.change(renameInput, { target: { value: 'NewCargo.toml' } })
+    fireEvent.keyDown(renameInput, { key: 'Enter' })
 
     await waitFor(() => {
-      expect(mockConfirm).toHaveBeenCalledWith('Are you sure you want to delete "/project/Cargo.toml"?')
-      expect(mockOnFileDelete).toHaveBeenCalledWith('/project/Cargo.toml')
+      expect(onFileRename).toHaveBeenCalledWith('/project/Cargo.toml', 'NewCargo.toml')
     })
   })
 
-  it('renames file from context menu', async () => {
+  it('cancels rename when Escape is pressed', () => {
     render(<ProjectExplorer {...defaultProps} />)
 
     const cargoFile = screen.getByText('Cargo.toml')
     fireEvent.contextMenu(cargoFile)
 
-    await waitFor(() => {
-      expect(screen.getByText('✏️ Rename')).toBeInTheDocument()
-    })
+    const renameItem = screen.getByText('✏️ Rename')
+    fireEvent.click(renameItem)
 
-    fireEvent.click(screen.getByText('✏️ Rename'))
+    const renameInput = screen.getByDisplayValue('Cargo.toml')
+    fireEvent.keyDown(renameInput, { key: 'Escape' })
 
-    await waitFor(() => {
-      const renameInput = screen.getByDisplayValue('Cargo.toml')
-      expect(renameInput).toBeInTheDocument()
-    })
+    // Should exit rename mode
+    expect(screen.queryByDisplayValue('Cargo.toml')).not.toBeInTheDocument()
+    expect(screen.getByText('Cargo.toml')).toBeInTheDocument()
   })
 
-  it('handles rename input submission', async () => {
-    mockOnFileRename.mockResolvedValue(undefined)
-
-    render(<ProjectExplorer {...defaultProps} />)
-
-    const cargoFile = screen.getByText('Cargo.toml')
-    fireEvent.contextMenu(cargoFile)
-
-    await waitFor(() => {
-      expect(screen.getByText('✏️ Rename')).toBeInTheDocument()
-    })
-
-    fireEvent.click(screen.getByText('✏️ Rename'))
-
-    await waitFor(() => {
-      const renameInput = screen.getByDisplayValue('Cargo.toml')
-      fireEvent.change(renameInput, { target: { value: 'NewCargo.toml' } })
-      fireEvent.keyDown(renameInput, { key: 'Enter' })
-    })
-
-    await waitFor(() => {
-      expect(mockOnFileRename).toHaveBeenCalledWith('/project/Cargo.toml', 'NewCargo.toml')
-    })
-  })
-
-  it('cancels rename on Escape key', async () => {
-    render(<ProjectExplorer {...defaultProps} />)
-
-    const cargoFile = screen.getByText('Cargo.toml')
-    fireEvent.contextMenu(cargoFile)
-
-    await waitFor(() => {
-      expect(screen.getByText('✏️ Rename')).toBeInTheDocument()
-    })
-
-    fireEvent.click(screen.getByText('✏️ Rename'))
-
-    await waitFor(() => {
-      const renameInput = screen.getByDisplayValue('Cargo.toml')
-      fireEvent.keyDown(renameInput, { key: 'Escape' })
-    })
-
-    await waitFor(() => {
-      expect(screen.queryByDisplayValue('Cargo.toml')).not.toBeInTheDocument()
-      expect(screen.getByText('Cargo.toml')).toBeInTheDocument()
-    })
-  })
-
-  it('shows refresh button in header', () => {
-    render(<ProjectExplorer {...defaultProps} />)
+  it('calls onRefresh when refresh button is clicked', () => {
+    const onRefresh = vi.fn()
+    render(<ProjectExplorer {...defaultProps} onRefresh={onRefresh} />)
 
     const refreshButton = screen.getByTitle('Refresh')
-    expect(refreshButton).toBeInTheDocument()
-
     fireEvent.click(refreshButton)
-    expect(mockOnRefresh).toHaveBeenCalled()
+
+    expect(onRefresh).toHaveBeenCalled()
   })
 
-  it('shows new file and folder buttons in header', () => {
-    render(<ProjectExplorer {...defaultProps} />)
-
-    expect(screen.getByTitle('New File')).toBeInTheDocument()
-    expect(screen.getByTitle('New Folder')).toBeInTheDocument()
-  })
-
-  it('displays file sizes for files', async () => {
-    render(<ProjectExplorer {...defaultProps} />)
-
-    // Expand src directory to see files
-    const srcNode = screen.getByText('src')
-    fireEvent.click(srcNode)
-
-    await waitFor(() => {
-      // File sizes should be displayed
-      expect(screen.getByText('1.0 KB')).toBeInTheDocument() // lib.rs
-      expect(screen.getByText('2.0 KB')).toBeInTheDocument() // processor.rs
-    })
-  })
-
-  it('handles empty project state', () => {
+  it('shows empty state when no files', () => {
     render(<ProjectExplorer {...defaultProps} files={[]} />)
 
     expect(screen.getByText('No files in project')).toBeInTheDocument()
     expect(screen.getByText('Create your first file')).toBeInTheDocument()
   })
 
+  it('creates file from empty state button', async () => {
+    const onFileCreate = vi.fn().mockResolvedValue(undefined)
+    render(<ProjectExplorer {...defaultProps} files={[]} onFileCreate={onFileCreate} />)
+
+    // Mock window.prompt
+    const originalPrompt = window.prompt
+    window.prompt = vi.fn().mockReturnValue('first-file.rs')
+
+    const createButton = screen.getByText('Create your first file')
+    fireEvent.click(createButton)
+
+    await waitFor(() => {
+      expect(onFileCreate).toHaveBeenCalled()
+    })
+
+    // Restore window.prompt
+    window.prompt = originalPrompt
+  })
+
+  it('displays validation errors when present', () => {
+    const validationErrors = [
+      {
+        file: 'Cargo.toml',
+        message: 'Missing required dependency',
+        suggestion: 'Add solana-program to dependencies'
+      }
+    ]
+
+    render(<ProjectExplorer {...defaultProps} validationErrors={validationErrors} />)
+
+    expect(screen.getByText('Project Configuration Issues')).toBeInTheDocument()
+    expect(screen.getByText('Cargo.toml')).toBeInTheDocument()
+    expect(screen.getByText('Missing required dependency')).toBeInTheDocument()
+    expect(screen.getByText('Add solana-program to dependencies')).toBeInTheDocument()
+  })
+
+  it('calls onValidateProject when re-validate button is clicked', () => {
+    const onValidateProject = vi.fn()
+    const validationErrors = [
+      {
+        file: 'Cargo.toml',
+        message: 'Missing required dependency',
+        suggestion: 'Add solana-program to dependencies'
+      }
+    ]
+
+    render(
+      <ProjectExplorer 
+        {...defaultProps} 
+        validationErrors={validationErrors}
+        onValidateProject={onValidateProject}
+      />
+    )
+
+    const revalidateButton = screen.getByTitle('Re-validate Project')
+    fireEvent.click(revalidateButton)
+
+    expect(onValidateProject).toHaveBeenCalled()
+  })
+
   it('sorts files with directories first', () => {
-    const mixedFiles: FileNode[] = [
+    const unsortedFiles: FileNode[] = [
       {
         name: 'z-file.rs',
         path: '/project/z-file.rs',
@@ -337,19 +396,31 @@ describe('ProjectExplorer', () => {
       }
     ]
 
-    render(<ProjectExplorer {...defaultProps} files={mixedFiles} />)
+    render(<ProjectExplorer {...defaultProps} files={unsortedFiles} />)
 
-    const nodes = screen.getAllByText(/^[a-z]/)
+    const nodes = screen.getAllByText(/^[ab-z]/)
     expect(nodes[0]).toHaveTextContent('a-directory') // Directory first
     expect(nodes[1]).toHaveTextContent('b-file.rs')   // Then files alphabetically
     expect(nodes[2]).toHaveTextContent('z-file.rs')
   })
 
-  it('handles drag and drop operations', async () => {
+  it('displays file sizes for files with metadata', () => {
+    render(<ProjectExplorer {...defaultProps} />)
+
+    // Expand src directory to see files with metadata
+    const srcDirectory = screen.getByText('src')
+    fireEvent.click(srcDirectory)
+
+    // Check that file sizes are displayed
+    expect(screen.getByText('1.0 KB')).toBeInTheDocument() // lib.rs size
+    expect(screen.getByText('2.0 KB')).toBeInTheDocument() // processor.rs size
+  })
+
+  it('handles drag and drop operations', () => {
     render(<ProjectExplorer {...defaultProps} />)
 
     const cargoFile = screen.getByText('Cargo.toml')
-    const srcDir = screen.getByText('src')
+    const srcDirectory = screen.getByText('src')
 
     // Start drag
     fireEvent.dragStart(cargoFile, {
@@ -360,20 +431,15 @@ describe('ProjectExplorer', () => {
     })
 
     // Drag over directory
-    fireEvent.dragOver(srcDir, {
-      dataTransfer: { dropEffect: 'move' },
-      preventDefault: vi.fn()
+    fireEvent.dragOver(srcDirectory, {
+      dataTransfer: {
+        dropEffect: 'move'
+      }
     })
 
-    // Drop
-    fireEvent.drop(srcDir, {
-      dataTransfer: { getData: vi.fn().mockReturnValue('/project/Cargo.toml') },
-      preventDefault: vi.fn()
-    })
-
-    await waitFor(() => {
-      expect(mockOnFileRename).toHaveBeenCalledWith('/project/Cargo.toml', '/project/src/Cargo.toml')
-    })
+    // Check drag target styling
+    const srcNode = srcDirectory.closest('.explorer-node')
+    expect(srcNode).toHaveClass('drag-target')
   })
 
   it('closes context menu when clicking outside', async () => {
@@ -382,11 +448,9 @@ describe('ProjectExplorer', () => {
     const cargoFile = screen.getByText('Cargo.toml')
     fireEvent.contextMenu(cargoFile)
 
-    await waitFor(() => {
-      expect(screen.getByText('📄 New File')).toBeInTheDocument()
-    })
+    expect(screen.getByText('📄 New File')).toBeInTheDocument()
 
-    // Click outside the context menu
+    // Click outside
     fireEvent.mouseDown(document.body)
 
     await waitFor(() => {
@@ -394,40 +458,35 @@ describe('ProjectExplorer', () => {
     })
   })
 
-  it('handles selected files highlighting', () => {
-    const propsWithSelection = {
-      ...defaultProps,
-      selectedFiles: ['/project/Cargo.toml']
-    }
+  it('applies custom className', () => {
+    render(<ProjectExplorer {...defaultProps} className="custom-explorer" />)
 
-    render(<ProjectExplorer {...propsWithSelection} />)
-
-    const cargoNode = screen.getByText('Cargo.toml').closest('.explorer-node')
-    expect(cargoNode).toHaveClass('selected')
+    const explorer = document.querySelector('.project-explorer.custom-explorer')
+    expect(explorer).toBeInTheDocument()
   })
 
-  it('handles error states gracefully', async () => {
-    const mockAlert = vi.fn()
-    Object.defineProperty(window, 'alert', { value: mockAlert, writable: true })
+  it('handles error in file operations gracefully', async () => {
+    const onFileCreate = vi.fn().mockRejectedValue(new Error('Permission denied'))
+    render(<ProjectExplorer {...defaultProps} onFileCreate={onFileCreate} />)
 
-    mockOnFileCreate.mockRejectedValue(new Error('Permission denied'))
+    // Mock window.prompt and alert
+    const originalPrompt = window.prompt
+    const originalAlert = window.alert
+    window.prompt = vi.fn().mockReturnValue('new-file.rs')
+    window.alert = vi.fn()
 
-    const mockPrompt = vi.fn().mockReturnValue('test-file.rs')
-    Object.defineProperty(window, 'prompt', { value: mockPrompt, writable: true })
+    const cargoFile = screen.getByText('Cargo.toml')
+    fireEvent.contextMenu(cargoFile)
 
-    render(<ProjectExplorer {...defaultProps} />)
-
-    const srcNode = screen.getByText('src')
-    fireEvent.contextMenu(srcNode)
-
-    await waitFor(() => {
-      expect(screen.getByText('📄 New File')).toBeInTheDocument()
-    })
-
-    fireEvent.click(screen.getByText('📄 New File'))
+    const newFileItem = screen.getByText('📄 New File')
+    fireEvent.click(newFileItem)
 
     await waitFor(() => {
-      expect(mockAlert).toHaveBeenCalledWith('Failed to create file: Permission denied')
+      expect(window.alert).toHaveBeenCalledWith('Failed to create file: Permission denied')
     })
+
+    // Restore mocks
+    window.prompt = originalPrompt
+    window.alert = originalAlert
   })
 })

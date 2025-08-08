@@ -113,7 +113,19 @@
 
 
 
-- [ ] 4.2 Build project explorer component
+- [x] 4.2 Build project explorer component
+
+
+
+
+
+
+
+
+
+
+
+
   - Create tree view component for project file structure
   - Implement file operations (create, delete, rename) with context menus
   - Add file type icons and Solana-specific file recognition
@@ -129,8 +141,13 @@
   - Write tests for menu and toolbar interactions
   - _Requirements: 1.1, 2.1, 4.1_
 
-- [ ] 5. Integrate code editor with Monaco Editor
-- [ ] 5.1 Set up Monaco Editor component
+- [-] 5. Integrate code editor with Monaco Editor
+
+
+- [x] 5.1 Set up Monaco Editor component
+
+
+
   - Install and configure Monaco Editor for React
   - Create CodeEditor component wrapper with TypeScript support
   - Implement file loading and saving functionality

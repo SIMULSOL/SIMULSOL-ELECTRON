@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Solana IDE Core transforms the existing Electron application into a comprehensive Solana development environment. The design leverages the current Electron + React + TypeScript stack and extends it with IDE-specific components, Solana toolchain integration, and advanced code editing capabilities. The architecture follows a modular approach with clear separation between the main process (Electron backend), renderer process (React frontend), and external tool integrations.
+The SIMULSOL Core transforms the existing Electron application into a comprehensive Solana development environment. The design leverages the current Electron + React + TypeScript stack and extends it with IDE-specific components, Solana toolchain integration, and advanced code editing capabilities. The architecture follows a modular approach with clear separation between the main process (Electron backend), renderer process (React frontend), and external tool integrations.
 
 ## Architecture
 
