@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react'
+import CustomHeader from './CustomHeader'
 import './MainMenu.css'
 
 export interface MenuAction {
@@ -314,49 +315,58 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onAction, className = '' }) 
   const [openSubmenus, setOpenSubmenus] = useState<Set<string>>(new Set())
   const menuRef = useRef<HTMLDivElement>(null)
 
-  const handleMenuClick = useCallback((menuId: string) => {
-    if (activeMenu === menuId) {
-      setActiveMenu(null)
-      setOpenSubmenus(new Set())
-    } else {
-      setActiveMenu(menuId)
-      setOpenSubmenus(new Set())
-    }
-  }, [activeMenu])
+  const handleMenuClick = useCallback(
+    (menuId: string) => {
+      if (activeMenu === menuId) {
+        setActiveMenu(null)
+        setOpenSubmenus(new Set())
+      } else {
+        setActiveMenu(menuId)
+        setOpenSubmenus(new Set())
+      }
+    },
+    [activeMenu]
+  )
 
-  const handleMenuItemClick = useCallback((action: MenuAction, event: React.MouseEvent) => {
-    event.stopPropagation()
-    
-    if (action.submenu) {
-      setOpenSubmenus(prev => {
-        const newSet = new Set(prev)
-        if (newSet.has(action.id)) {
-          newSet.delete(action.id)
-        } else {
-          newSet.add(action.id)
-        }
-        return newSet
-      })
-    } else if (!action.disabled && !action.separator) {
-      onAction(action.id)
-      setActiveMenu(null)
-      setOpenSubmenus(new Set())
-    }
-  }, [onAction])
+  const handleMenuItemClick = useCallback(
+    (action: MenuAction, event: React.MouseEvent) => {
+      event.stopPropagation()
 
-  const handleMouseEnter = useCallback((menuId: string) => {
-    if (activeMenu !== null) {
-      setActiveMenu(menuId)
-      setOpenSubmenus(new Set())
-    }
-  }, [activeMenu])
+      if (action.submenu) {
+        setOpenSubmenus((prev) => {
+          const newSet = new Set(prev)
+          if (newSet.has(action.id)) {
+            newSet.delete(action.id)
+          } else {
+            newSet.add(action.id)
+          }
+          return newSet
+        })
+      } else if (!action.disabled && !action.separator) {
+        onAction(action.id)
+        setActiveMenu(null)
+        setOpenSubmenus(new Set())
+      }
+    },
+    [onAction]
+  )
+
+  const handleMouseEnter = useCallback(
+    (menuId: string) => {
+      if (activeMenu !== null) {
+        setActiveMenu(menuId)
+        setOpenSubmenus(new Set())
+      }
+    },
+    [activeMenu]
+  )
 
   const handleSubmenuMouseEnter = useCallback((submenuId: string) => {
-    setOpenSubmenus(prev => new Set([...prev, submenuId]))
+    setOpenSubmenus((prev) => new Set([...prev, submenuId]))
   }, [])
 
   const handleSubmenuMouseLeave = useCallback((submenuId: string) => {
-    setOpenSubmenus(prev => {
+    setOpenSubmenus((prev) => {
       const newSet = new Set(prev)
       newSet.delete(submenuId)
       return newSet
@@ -400,46 +410,53 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onAction, className = '' }) 
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [activeMenu])
 
-  const renderSubmenu = useCallback((items: MenuAction[], depth: number = 0): React.ReactNode => {
-    return (
-      <div className={`menu-submenu depth-${depth}`}>
-        {items.map((item, index) => {
-          if (item.separator) {
-            return <div key={`separator-${index}`} className="menu-separator" />
-          }
+  const renderSubmenu = useCallback(
+    (items: MenuAction[], depth: number = 0): React.ReactNode => {
+      return (
+        <div className={`menu-submenu depth-${depth}`}>
+          {items.map((item, index) => {
+            if (item.separator) {
+              return <div key={`separator-${index}`} className="menu-separator" />
+            }
 
-          const hasSubmenu = item.submenu && item.submenu.length > 0
-          const isOpen = openSubmenus.has(item.id)
+            const hasSubmenu = item.submenu && item.submenu.length > 0
+            const isOpen = openSubmenus.has(item.id)
 
-          return (
-            <div
-              key={item.id}
-              className={`menu-item ${item.disabled ? 'disabled' : ''} ${hasSubmenu ? 'has-submenu' : ''}`}
-              onClick={(e) => handleMenuItemClick(item, e)}
-              onMouseEnter={() => hasSubmenu && handleSubmenuMouseEnter(item.id)}
-              onMouseLeave={() => hasSubmenu && handleSubmenuMouseLeave(item.id)}
-            >
-              <div className="menu-item-content">
-                {item.icon && <span className="menu-item-icon">{item.icon}</span>}
-                <span className="menu-item-label">{item.label}</span>
-                {item.shortcut && <span className="menu-item-shortcut">{item.shortcut}</span>}
-                {hasSubmenu && <span className="menu-item-arrow">▶</span>}
-              </div>
-              
-              {hasSubmenu && isOpen && (
-                <div className="menu-submenu-container">
-                  {renderSubmenu(item.submenu!, depth + 1)}
+            return (
+              <div
+                key={item.id}
+                className={`menu-item ${item.disabled ? 'disabled' : ''} ${hasSubmenu ? 'has-submenu' : ''}`}
+                onClick={(e) => handleMenuItemClick(item, e)}
+                onMouseEnter={() => hasSubmenu && handleSubmenuMouseEnter(item.id)}
+                onMouseLeave={() => hasSubmenu && handleSubmenuMouseLeave(item.id)}
+              >
+                <div className="menu-item-content">
+                  {item.icon && <span className="menu-item-icon">{item.icon}</span>}
+                  <span className="menu-item-label">{item.label}</span>
+                  {item.shortcut && <span className="menu-item-shortcut">{item.shortcut}</span>}
+                  {hasSubmenu && <span className="menu-item-arrow">▶</span>}
                 </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
-    )
-  }, [openSubmenus, handleMenuItemClick, handleSubmenuMouseEnter, handleSubmenuMouseLeave])
+
+                {hasSubmenu && isOpen && (
+                  <div className="menu-submenu-container">
+                    {renderSubmenu(item.submenu!, depth + 1)}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )
+    },
+    [openSubmenus, handleMenuItemClick, handleSubmenuMouseEnter, handleSubmenuMouseLeave]
+  )
 
   return (
     <div ref={menuRef} className={`main-menu ${className}`}>
+      {/* Custom Header with navigation and window controls */}
+      <CustomHeader title="SIMUSOL Core" onAction={onAction} />
+
+      {/* Traditional menu bar */}
       <div className="menu-bar">
         {MENU_STRUCTURE.map((menu) => (
           <div
@@ -449,11 +466,9 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onAction, className = '' }) 
             onMouseEnter={() => handleMouseEnter(menu.id)}
           >
             {menu.label}
-            
+
             {activeMenu === menu.id && menu.submenu && (
-              <div className="menu-dropdown">
-                {renderSubmenu(menu.submenu)}
-              </div>
+              <div className="menu-dropdown">{renderSubmenu(menu.submenu)}</div>
             )}
           </div>
         ))}

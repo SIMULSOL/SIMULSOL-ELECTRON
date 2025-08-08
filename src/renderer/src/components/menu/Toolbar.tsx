@@ -175,6 +175,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAction, className = '' }) =>
   const renderDropdown = useCallback((items: ToolbarAction[], parentId: string) => {
     return (
       <div className="toolbar-dropdown">
+
+    
         {items.map((item, index) => {
           if (item.separator) {
             return <div key={`separator-${index}`} className="toolbar-dropdown-separator" />
@@ -198,6 +200,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAction, className = '' }) =>
 
   return (
     <div className={`toolbar ${className}`}>
+    
       <div className="toolbar-content">
         {TOOLBAR_ACTIONS.map((action, index) => {
           if (action.separator) {

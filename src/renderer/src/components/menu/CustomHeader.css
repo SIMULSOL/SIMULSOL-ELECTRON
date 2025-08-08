@@ -1,0 +1,244 @@
+/* Custom Header Styles */
+.custom-header {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  background-color: #2d2d30;
+  border-bottom: 1px solid #3e3e42;
+  color: #cccccc;
+  font-size: 13px;
+  user-select: none;
+  -webkit-app-region: drag;
+  position: relative;
+  z-index: 1000;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  -webkit-app-region: no-drag;
+}
+
+.header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  -webkit-app-region: drag;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  -webkit-app-region: no-drag;
+}
+
+/* Navigation Buttons */
+.navigation-buttons {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.nav-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #cccccc;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.nav-button:hover:not(.disabled) {
+  background-color: #3e3e42;
+}
+
+.nav-button:active:not(.disabled) {
+  background-color: #4e4e52;
+}
+
+.nav-button.disabled {
+  color: #6c6c6c;
+  cursor: not-allowed;
+}
+
+.nav-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* App Title */
+.app-title {
+  font-weight: 400;
+  color: #cccccc;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+/* Window Controls */
+.window-controls {
+  display: flex;
+  align-items: center;
+}
+
+.window-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  color: #cccccc;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.window-control:hover {
+  background-color: #3e3e42;
+}
+
+.window-control:active {
+  background-color: #4e4e52;
+}
+
+.window-control.close-button:hover {
+  background-color: #e81123;
+  color: #ffffff;
+}
+
+.window-control.close-button:active {
+  background-color: #c50e1f;
+  color: #ffffff;
+}
+
+.window-control svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Platform-specific adjustments */
+.custom-header.darwin {
+  padding-left: 78px; /* Space for macOS traffic lights */
+}
+
+.custom-header.darwin .header-left {
+  padding-left: 0;
+}
+
+/* Light theme support */
+.custom-header.light {
+  background-color: #f3f3f3;
+  border-bottom-color: #e5e5e5;
+  color: #333333;
+}
+
+.custom-header.light .nav-button {
+  color: #333333;
+}
+
+.custom-header.light .nav-button:hover:not(.disabled) {
+  background-color: #e5e5e5;
+}
+
+.custom-header.light .nav-button:active:not(.disabled) {
+  background-color: #d5d5d5;
+}
+
+.custom-header.light .nav-button.disabled {
+  color: #999999;
+}
+
+.custom-header.light .app-title {
+  color: #333333;
+}
+
+.custom-header.light .window-control {
+  color: #333333;
+}
+
+.custom-header.light .window-control:hover {
+  background-color: #e5e5e5;
+}
+
+.custom-header.light .window-control:active {
+  background-color: #d5d5d5;
+}
+
+.custom-header.light .window-control.close-button:hover {
+  background-color: #e81123;
+  color: #ffffff;
+}
+
+.custom-header.light .window-control.close-button:active {
+  background-color: #c50e1f;
+  color: #ffffff;
+}
+
+/* Focus styles for accessibility */
+.nav-button:focus-visible,
+.window-control:focus-visible {
+  outline: 2px solid #007acc;
+  outline-offset: -2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .app-title {
+    max-width: 200px;
+  }
+  
+  .navigation-buttons {
+    gap: 1px;
+  }
+  
+  .nav-button {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .nav-button svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* Animation for maximize/restore button */
+.window-control.maximize-button svg {
+  transition: transform 0.15s ease;
+}
+
+.window-control.maximize-button:hover svg {
+  transform: scale(1.1);
+}
+
+/* Disabled state for navigation buttons */
+.nav-button.disabled svg {
+  opacity: 0.5;
+}
+
+/* Loading state (optional) */
+.custom-header.loading .nav-button {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.custom-header.loading .app-title::after {
+  content: '...';
+  animation: loading-dots 1.5s infinite;
+}
+
+@keyframes loading-dots {
+  0%, 20% { opacity: 0; }
+  50% { opacity: 1; }
+  80%, 100% { opacity: 0; }
+}
