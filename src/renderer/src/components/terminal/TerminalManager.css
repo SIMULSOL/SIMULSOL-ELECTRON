@@ -1,0 +1,188 @@
+.terminal-manager {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #1e1e1e;
+  border: 1px solid #3c3c3c;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Terminal tabs */
+.terminal-tabs {
+  display: flex;
+  align-items: center;
+  background-color: #2d2d2d;
+  border-bottom: 1px solid #3c3c3c;
+  padding: 0;
+  min-height: 32px;
+}
+
+.terminal-tab-list {
+  display: flex;
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.terminal-tab-list::-webkit-scrollbar {
+  display: none;
+}
+
+.terminal-tab {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  background-color: #2d2d2d;
+  border-right: 1px solid #3c3c3c;
+  cursor: pointer;
+  user-select: none;
+  min-width: 120px;
+  max-width: 200px;
+  transition: background-color 0.2s ease;
+}
+
+.terminal-tab:hover {
+  background-color: #3c3c3c;
+}
+
+.terminal-tab.active {
+  background-color: #1e1e1e;
+  border-bottom: 2px solid #007acc;
+}
+
+.terminal-tab-title {
+  flex: 1;
+  font-size: 12px;
+  color: #cccccc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.terminal-tab.active .terminal-tab-title {
+  color: #ffffff;
+}
+
+.terminal-tab-close {
+  background: none;
+  border: none;
+  color: #999999;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 8px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.terminal-tab-close:hover {
+  background-color: #e74c3c;
+  color: #ffffff;
+}
+
+.terminal-new-tab {
+  background: none;
+  border: none;
+  color: #cccccc;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 6px 12px;
+  margin: 0;
+  transition: all 0.2s ease;
+  border-radius: 0;
+}
+
+.terminal-new-tab:hover {
+  background-color: #3c3c3c;
+  color: #ffffff;
+}
+
+/* Terminal content */
+.terminal-content {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.terminal-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #1e1e1e;
+}
+
+.terminal-panel.hidden {
+  display: none;
+}
+
+.terminal-panel.active {
+  display: block;
+}
+
+.terminal-instance {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 0;
+}
+
+/* Light theme overrides */
+.terminal-manager.light {
+  background-color: #ffffff;
+  border-color: #d1d1d1;
+}
+
+.terminal-manager.light .terminal-tabs {
+  background-color: #f8f8f8;
+  border-bottom-color: #d1d1d1;
+}
+
+.terminal-manager.light .terminal-tab {
+  background-color: #f8f8f8;
+  border-right-color: #d1d1d1;
+}
+
+.terminal-manager.light .terminal-tab:hover {
+  background-color: #e8e8e8;
+}
+
+.terminal-manager.light .terminal-tab.active {
+  background-color: #ffffff;
+  border-bottom-color: #0078d4;
+}
+
+.terminal-manager.light .terminal-tab-title {
+  color: #333333;
+}
+
+.terminal-manager.light .terminal-tab.active .terminal-tab-title {
+  color: #000000;
+}
+
+.terminal-manager.light .terminal-tab-close {
+  color: #666666;
+}
+
+.terminal-manager.light .terminal-new-tab {
+  color: #333333;
+}
+
+.terminal-manager.light .terminal-new-tab:hover {
+  background-color: #e8e8e8;
+  color: #000000;
+}
+
+.terminal-manager.light .terminal-panel {
+  background-color: #ffffff;
+}

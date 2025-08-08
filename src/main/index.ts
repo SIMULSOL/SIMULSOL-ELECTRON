@@ -7,17 +7,26 @@ import { FileSystemManager } from './services/FileSystemManager'
 import { ProcessManager } from './services/ProcessManager'
 import { WorkspaceManager } from './services/WorkspaceManager'
 
+// Global reference to main window
+let mainWindow: BrowserWindow | null = null
+
 function createWindow(): void {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+  mainWindow = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    minWidth: 800,
+    minHeight: 600,
     show: false,
+    frame: false,
+    titleBarStyle: 'hidden',
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      contextIsolation: true,
+      nodeIntegration: false
     }
   })
 
@@ -52,9 +61,19 @@ app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
+  // Create a function to send events to all renderer processes
+  const sendToRenderer = (channel: string, data: unknown) => {
+    const windows = BrowserWindow.getAllWindows()
+    windows.forEach((window) => {
+      if (!window.isDestroyed()) {
+        window.webContents.send(channel, data)
+      }
+    })
+  }
+
   // Initialize services
   fileSystemManager = new FileSystemManager()
-  processManager = new ProcessManager()
+  processManager = new ProcessManager(sendToRenderer)
   workspaceManager = new WorkspaceManager()
 
   // Initialize IPC handler
@@ -65,6 +84,64 @@ app.whenReady().then(() => {
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
+  })
+
+  // Window control IPC handlers
+  ipcMain.handle('window:minimize', () => {
+    if (mainWindow) {
+      mainWindow.minimize()
+    }
+  })
+
+  ipcMain.handle('window:maximize', () => {
+    if (mainWindow) {
+      if (mainWindow.isMaximized()) {
+        mainWindow.unmaximize()
+      } else {
+        mainWindow.maximize()
+      }
+    }
+  })
+
+  ipcMain.handle('window:close', () => {
+    if (mainWindow) {
+      mainWindow.close()
+    }
+  })
+
+  ipcMain.handle('window:isMaximized', () => {
+    return mainWindow ? mainWindow.isMaximized() : false
+  })
+
+  // Navigation IPC handlers
+  ipcMain.handle('navigation:back', () => {
+    if (mainWindow && mainWindow.webContents.canGoBack()) {
+      mainWindow.webContents.goBack()
+      return true
+    }
+    return false
+  })
+
+  ipcMain.handle('navigation:forward', () => {
+    if (mainWindow && mainWindow.webContents.canGoForward()) {
+      mainWindow.webContents.goForward()
+      return true
+    }
+    return false
+  })
+
+  ipcMain.handle('navigation:reload', () => {
+    if (mainWindow) {
+      mainWindow.webContents.reload()
+    }
+  })
+
+  ipcMain.handle('navigation:canGoBack', () => {
+    return mainWindow ? mainWindow.webContents.canGoBack() : false
+  })
+
+  ipcMain.handle('navigation:canGoForward', () => {
+    return mainWindow ? mainWindow.webContents.canGoForward() : false
   })
 
   // IPC test (legacy - can be removed)

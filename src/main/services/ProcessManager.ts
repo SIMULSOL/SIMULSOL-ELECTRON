@@ -58,7 +58,7 @@ class TerminalSessionImpl extends EventEmitter implements TerminalSession {
   private startTime: Date
   private _isAlive: boolean = true
 
-  constructor(id: string, process: ChildProcess, cwd: string) {
+  constructor(id: string, process: ChildProcess, cwd: string, private sendToRenderer?: (channel: string, data: any) => void) {
     super()
     this.id = id
     this.pid = process.pid!
@@ -71,11 +71,29 @@ class TerminalSessionImpl extends EventEmitter implements TerminalSession {
 
   private setupEventHandlers(): void {
     this.process.stdout?.on('data', (data) => {
-      this.emit('data', data.toString())
+      const output = data.toString()
+      this.emit('data', output)
+      
+      // Send to renderer process if callback is provided
+      if (this.sendToRenderer) {
+        this.sendToRenderer('event:terminal-output', {
+          terminalId: this.id,
+          data: output
+        })
+      }
     })
 
     this.process.stderr?.on('data', (data) => {
-      this.emit('data', data.toString())
+      const output = data.toString()
+      this.emit('data', output)
+      
+      // Send to renderer process if callback is provided
+      if (this.sendToRenderer) {
+        this.sendToRenderer('event:terminal-output', {
+          terminalId: this.id,
+          data: output
+        })
+      }
     })
 
     this.process.on('exit', (code, signal) => {
@@ -123,6 +141,11 @@ export class ProcessManager {
   private runningProcesses: Map<number, ProcessInfo> = new Map()
   private terminalSessions: Map<string, TerminalSession> = new Map()
   private nextTerminalId = 1
+  private sendToRenderer?: (channel: string, data: any) => void
+
+  constructor(sendToRenderer?: (channel: string, data: any) => void) {
+    this.sendToRenderer = sendToRenderer
+  }
 
   /**
    * Executes a command and returns the result
@@ -266,7 +289,7 @@ export class ProcessManager {
         )
       }
 
-      const session = new TerminalSessionImpl(terminalId, childProcess, config.cwd)
+      const session = new TerminalSessionImpl(terminalId, childProcess, config.cwd, this.sendToRenderer)
       this.terminalSessions.set(terminalId, session)
 
       // Track as a running process

@@ -374,7 +374,11 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
                 }
                 return a.name.localeCompare(b.name)
               })
-              .map(child => renderNode(child, depth + 1))}
+              .map(child => (
+                <React.Fragment key={child.path}>
+                  {renderNode(child, depth + 1)}
+                </React.Fragment>
+              ))}
           </div>
         )}
       </div>
@@ -478,7 +482,11 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
               }
               return a.name.localeCompare(b.name)
             })
-            .map(node => renderNode(node))
+            .map(node => (
+              <React.Fragment key={node.path}>
+                {renderNode(node)}
+              </React.Fragment>
+            ))
         )}
       </div>
 

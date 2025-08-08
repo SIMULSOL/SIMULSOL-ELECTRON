@@ -1,10 +1,10 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react'
+import React, { useCallback, useRef, useEffect, useState } from 'react'
+import { useLayout } from './LayoutContext'
 import './IDELayoutManager.css'
 
 export interface PanelConfig {
   id: string
   title: string
-  content: React.ReactNode
   position: 'left' | 'right' | 'bottom' | 'center'
   size?: number // Size in pixels or percentage
   minSize?: number
@@ -32,6 +32,8 @@ export interface LayoutState {
 interface IDELayoutManagerProps {
   initialLayout?: LayoutState
   onLayoutChange?: (layout: LayoutState) => void
+  componentRegistry?: Record<string, React.ComponentType<any>>
+  componentProps?: Record<string, unknown>
 }
 
 const DEFAULT_LAYOUT: LayoutState = {
@@ -50,83 +52,15 @@ const DEFAULT_LAYOUT: LayoutState = {
 }
 
 export const IDELayoutManager: React.FC<IDELayoutManagerProps> = ({
-  initialLayout = DEFAULT_LAYOUT,
-  onLayoutChange
+  onLayoutChange,
+  componentRegistry = {},
+  componentProps = {}
 }) => {
-  const [layout, setLayout] = useState<LayoutState>(initialLayout)
+  const { layout, resizePanel, togglePanel } = useLayout()
   const [isResizing, setIsResizing] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const resizeStartPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
   const initialSizes = useRef<Record<string, PanelSize>>({})
-
-  const updateLayout = useCallback((newLayout: LayoutState) => {
-    setLayout(newLayout)
-    onLayoutChange?.(newLayout)
-  }, [onLayoutChange])
-
-  const addPanel = useCallback((panel: PanelConfig) => {
-    const newLayout = {
-      ...layout,
-      panels: {
-        ...layout.panels,
-        [panel.id]: panel
-      },
-      visibility: {
-        ...layout.visibility,
-        [panel.id]: true
-      },
-      sizes: {
-        ...layout.sizes,
-        [panel.id]: {
-          width: panel.size || 250,
-          height: panel.size || 200
-        }
-      }
-    }
-    updateLayout(newLayout)
-  }, [layout, updateLayout])
-
-  const removePanel = useCallback((panelId: string) => {
-    const newPanels = { ...layout.panels }
-    const newVisibility = { ...layout.visibility }
-    const newSizes = { ...layout.sizes }
-    
-    delete newPanels[panelId]
-    delete newVisibility[panelId]
-    delete newSizes[panelId]
-
-    updateLayout({
-      ...layout,
-      panels: newPanels,
-      visibility: newVisibility,
-      sizes: newSizes
-    })
-  }, [layout, updateLayout])
-
-  const resizePanel = useCallback((panelId: string, size: PanelSize) => {
-    const newLayout = {
-      ...layout,
-      sizes: {
-        ...layout.sizes,
-        [panelId]: {
-          ...layout.sizes[panelId],
-          ...size
-        }
-      }
-    }
-    updateLayout(newLayout)
-  }, [layout, updateLayout])
-
-  const togglePanel = useCallback((panelId: string) => {
-    const newLayout = {
-      ...layout,
-      visibility: {
-        ...layout.visibility,
-        [panelId]: !layout.visibility[panelId]
-      }
-    }
-    updateLayout(newLayout)
-  }, [layout, updateLayout])
 
   const handleResizeStart = useCallback((panelId: string, event: React.MouseEvent) => {
     event.preventDefault()
@@ -186,13 +120,12 @@ export const IDELayoutManager: React.FC<IDELayoutManagerProps> = ({
     }
   }, [isResizing, handleResizeMove, handleResizeEnd])
 
-  const saveLayout = useCallback((): LayoutState => {
-    return { ...layout }
-  }, [layout])
-
-  const restoreLayout = useCallback((savedLayout: LayoutState) => {
-    updateLayout(savedLayout)
-  }, [updateLayout])
+  // Notify parent of layout changes
+  useEffect(() => {
+    if (onLayoutChange) {
+      onLayoutChange(layout)
+    }
+  }, [layout, onLayoutChange])
 
   // Update grid template based on panel sizes and visibility
   const updateGridTemplate = useCallback(() => {
@@ -275,7 +208,14 @@ export const IDELayoutManager: React.FC<IDELayoutManagerProps> = ({
               </div>
             </div>
             <div className="ide-panel-content">
-              {panel.content}
+              {(() => {
+                const Component = componentRegistry[panelId]
+                if (Component) {
+                  const props = componentProps[panelId] || {}
+                  return <Component {...props} />
+                }
+                return <div>Panel content not found for {panelId}</div>
+              })()}
             </div>
             {panel.resizable !== false && (
               <div
@@ -290,17 +230,9 @@ export const IDELayoutManager: React.FC<IDELayoutManagerProps> = ({
   )
 }
 
-// Export the hook for external use
+// Export the hook for external use - now uses context
 export const useIDELayout = () => {
-  const [layoutManager, setLayoutManager] = useState<{
-    addPanel: (panel: PanelConfig) => void
-    removePanel: (panelId: string) => void
-    resizePanel: (panelId: string, size: PanelSize) => void
-    saveLayout: () => LayoutState
-    restoreLayout: (layout: LayoutState) => void
-  } | null>(null)
-
-  return layoutManager
+  return useLayout()
 }
 
 export default IDELayoutManager

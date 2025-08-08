@@ -1,4 +1,4 @@
-// Common types used across the application
+// Common types shared between main and renderer processes
 
 export interface Position {
   line: number
@@ -18,30 +18,59 @@ export interface Diagnostic {
   code?: string | number
 }
 
-export interface UserFriendlyError {
-  message: string
-  details: string
-  suggestedActions: Action[]
-  severity: 'error' | 'warning' | 'info'
+export interface FileInfo {
+  path: string
+  name: string
+  isDirectory: boolean
+  size?: number
+  lastModified?: Date
+  children?: FileInfo[]
 }
 
-export interface Action {
+export interface ProjectInfo {
+  name: string
+  path: string
+  type: 'anchor' | 'native' | 'token' | 'other'
+  description?: string
+  version?: string
+}
+
+export interface BuildResult {
+  success: boolean
+  output: string
+  errors: Diagnostic[]
+  warnings: Diagnostic[]
+  duration: number
+}
+
+export interface TestResult {
+  name: string
+  passed: boolean
+  duration: number
+  output?: string
+  error?: string
+}
+
+export interface TerminalSession {
+  id: string
   title: string
-  command: string
-  arguments?: any[]
+  cwd: string
+  isActive: boolean
+  pid?: number
 }
 
 export interface FileMetadata {
   size: number
-  created: Date
   modified: Date
-  isReadonly: boolean
-  encoding?: string
+  created?: Date
+  permissions?: string
+  isHidden?: boolean
 }
 
 export interface Dependency {
   name: string
   version: string
-  type: 'dev' | 'runtime'
-  source: 'crates.io' | 'git' | 'local'
+  type: 'dev' | 'build' | 'runtime'
+  source?: 'crates.io' | 'git' | 'path'
+  features?: string[]
 }

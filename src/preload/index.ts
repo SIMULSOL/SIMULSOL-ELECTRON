@@ -207,6 +207,23 @@ const api = {
     removeAllListeners: () => ipcClient.removeAllListeners()
   },
 
+  // Window control API
+  window: {
+    minimize: () => ipcRenderer.invoke('window:minimize'),
+    maximize: () => ipcRenderer.invoke('window:maximize'),
+    close: () => ipcRenderer.invoke('window:close'),
+    isMaximized: () => ipcRenderer.invoke('window:isMaximized')
+  },
+
+  // Navigation API
+  navigation: {
+    back: () => ipcRenderer.invoke('navigation:back'),
+    forward: () => ipcRenderer.invoke('navigation:forward'),
+    reload: () => ipcRenderer.invoke('navigation:reload'),
+    canGoBack: () => ipcRenderer.invoke('navigation:canGoBack'),
+    canGoForward: () => ipcRenderer.invoke('navigation:canGoForward')
+  },
+
   // IPC Client utilities
   ipc: {
     getQueueStatus: () => ipcClient.getQueueStatus(),

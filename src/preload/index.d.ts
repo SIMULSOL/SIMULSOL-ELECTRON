@@ -143,6 +143,21 @@ interface EventsAPI {
   removeAllListeners: () => void
 }
 
+interface WindowControlAPI {
+  minimize: () => Promise<void>
+  maximize: () => Promise<void>
+  close: () => Promise<void>
+  isMaximized: () => Promise<boolean>
+}
+
+interface NavigationAPI {
+  back: () => Promise<boolean>
+  forward: () => Promise<boolean>
+  reload: () => Promise<void>
+  canGoBack: () => Promise<boolean>
+  canGoForward: () => Promise<boolean>
+}
+
 interface IPCUtilitiesAPI {
   getQueueStatus: () => { active: number; queued: number }
   clearQueue: () => void
@@ -170,6 +185,8 @@ interface SolanaIDEAPI {
   workspace: WorkspaceAPI
   toolchain: ToolchainAPI
   events: EventsAPI
+  window: WindowControlAPI
+  navigation: NavigationAPI
   ipc: IPCUtilitiesAPI
 }
 

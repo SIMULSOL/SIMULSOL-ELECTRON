@@ -102,60 +102,71 @@ export const useProjectExplorer = (): [ProjectExplorerState, ProjectExplorerActi
   const loadProjectStructure = useCallback(async (projectPath: string): Promise<FileNode[]> => {
     try {
       // Use IPC to get project structure from main process
-      if (window.electron?.ipcRenderer) {
-        const structure = await window.electron.ipcRenderer.invoke('fs:get-project-structure', {
-          path: projectPath
-        })
+      if (window.api?.project) {
+        const structure = await window.api.project.getStructure(projectPath)
         return structure
       }
       
       // Fallback mock data for development
-      return [
-        {
-          name: 'src',
-          path: `${projectPath}/src`,
-          type: 'directory',
-          children: [
-            {
-              name: 'lib.rs',
-              path: `${projectPath}/src/lib.rs`,
-              type: 'file',
-              metadata: { size: 1024, modified: new Date() }
-            },
-            {
-              name: 'processor.rs',
-              path: `${projectPath}/src/processor.rs`,
-              type: 'file',
-              metadata: { size: 2048, modified: new Date() }
-            }
-          ]
+      const mockStructure = {
+        name: projectPath.split('/').pop() || 'project',
+        path: projectPath,
+        type: 'anchor' as const,
+        files: [
+          {
+            name: 'src',
+            path: `${projectPath}/src`,
+            type: 'directory' as const,
+            children: [
+              {
+                name: 'lib.rs',
+                path: `${projectPath}/src/lib.rs`,
+                type: 'file' as const,
+                metadata: { size: 1024, modified: new Date(), isHidden: false }
+              },
+              {
+                name: 'processor.rs',
+                path: `${projectPath}/src/processor.rs`,
+                type: 'file' as const,
+                metadata: { size: 2048, modified: new Date(), isHidden: false }
+              }
+            ],
+            metadata: { size: 0, modified: new Date(), isHidden: false }
+          },
+          {
+            name: 'tests',
+            path: `${projectPath}/tests`,
+            type: 'directory' as const,
+            children: [
+              {
+                name: 'integration.rs',
+                path: `${projectPath}/tests/integration.rs`,
+                type: 'file' as const,
+                metadata: { size: 512, modified: new Date(), isHidden: false }
+              }
+            ],
+            metadata: { size: 0, modified: new Date(), isHidden: false }
+          },
+          {
+            name: 'Cargo.toml',
+            path: `${projectPath}/Cargo.toml`,
+            type: 'file' as const,
+            metadata: { size: 256, modified: new Date(), isHidden: false }
+          },
+          {
+            name: 'Anchor.toml',
+            path: `${projectPath}/Anchor.toml`,
+            type: 'file' as const,
+            metadata: { size: 128, modified: new Date(), isHidden: false }
+          }
+        ],
+        configuration: {
+          name: 'sample-project',
+          version: '1.0.0'
         },
-        {
-          name: 'tests',
-          path: `${projectPath}/tests`,
-          type: 'directory',
-          children: [
-            {
-              name: 'integration.rs',
-              path: `${projectPath}/tests/integration.rs`,
-              type: 'file',
-              metadata: { size: 512, modified: new Date() }
-            }
-          ]
-        },
-        {
-          name: 'Cargo.toml',
-          path: `${projectPath}/Cargo.toml`,
-          type: 'file',
-          metadata: { size: 256, modified: new Date() }
-        },
-        {
-          name: 'Anchor.toml',
-          path: `${projectPath}/Anchor.toml`,
-          type: 'file',
-          metadata: { size: 128, modified: new Date() }
-        }
-      ]
+        dependencies: []
+      }
+      return mockStructure.files
     } catch (error) {
       console.error('Failed to load project structure:', error)
       throw error
@@ -202,8 +213,9 @@ export const useProjectExplorer = (): [ProjectExplorerState, ProjectExplorerActi
 
   const openFile = useCallback((filePath: string) => {
     // Emit file open event or call IPC
-    if (window.electron?.ipcRenderer) {
-      window.electron.ipcRenderer.send('editor:open-file', { path: filePath })
+    if (window.api?.fileSystem) {
+      // For now, just select the file - the parent component will handle opening
+      console.log('Opening file:', filePath)
     }
     
     // Also select the file
@@ -214,12 +226,13 @@ export const useProjectExplorer = (): [ProjectExplorerState, ProjectExplorerActi
     try {
       updateState({ isLoading: true, error: null })
       
-      if (window.electron?.ipcRenderer) {
-        await window.electron.ipcRenderer.invoke('fs:create-file', {
-          parentPath,
-          name,
-          type
-        })
+      if (window.api?.fileSystem) {
+        const fullPath = `${parentPath}/${name}`
+        if (type === 'directory') {
+          await window.api.fileSystem.createDirectory(fullPath)
+        } else {
+          await window.api.fileSystem.writeFile(fullPath, '')
+        }
       } else {
         // Mock implementation for development
         console.log(`Creating ${type}: ${parentPath}/${name}`)
@@ -240,10 +253,8 @@ export const useProjectExplorer = (): [ProjectExplorerState, ProjectExplorerActi
     try {
       updateState({ isLoading: true, error: null })
       
-      if (window.electron?.ipcRenderer) {
-        await window.electron.ipcRenderer.invoke('fs:delete-file', {
-          path: filePath
-        })
+      if (window.api?.fileSystem) {
+        await window.api.fileSystem.deleteFile(filePath)
       } else {
         // Mock implementation for development
         console.log(`Deleting: ${filePath}`)
@@ -272,11 +283,13 @@ export const useProjectExplorer = (): [ProjectExplorerState, ProjectExplorerActi
       const parentPath = oldPath.substring(0, oldPath.lastIndexOf('/'))
       const newPath = `${parentPath}/${newName}`
       
-      if (window.electron?.ipcRenderer) {
-        await window.electron.ipcRenderer.invoke('fs:rename-file', {
-          oldPath,
-          newPath
-        })
+      if (window.api?.fileSystem) {
+        // Read the old file content
+        const content = await window.api.fileSystem.readFile(oldPath)
+        // Write to new location
+        await window.api.fileSystem.writeFile(newPath, content)
+        // Delete old file
+        await window.api.fileSystem.deleteFile(oldPath)
       } else {
         // Mock implementation for development
         console.log(`Renaming: ${oldPath} -> ${newPath}`)

@@ -1,0 +1,58 @@
+.terminal-example {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.terminal-example-header {
+  padding: 16px;
+  background-color: #2d2d2d;
+  border-bottom: 1px solid #3c3c3c;
+}
+
+.terminal-example-header h3 {
+  margin: 0 0 8px 0;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.terminal-example-header p {
+  margin: 0;
+  color: #cccccc;
+  font-size: 14px;
+}
+
+.terminal-example-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.terminal-example-manager {
+  flex: 1;
+  border: none;
+  border-radius: 0;
+}
+
+/* Light theme */
+.terminal-example.light {
+  background-color: #ffffff;
+}
+
+.terminal-example.light .terminal-example-header {
+  background-color: #f8f8f8;
+  border-bottom-color: #d1d1d1;
+}
+
+.terminal-example.light .terminal-example-header h3 {
+  color: #000000;
+}
+
+.terminal-example.light .terminal-example-header p {
+  color: #666666;
+}

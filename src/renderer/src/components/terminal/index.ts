@@ -1,0 +1,6 @@
+export { default as TerminalComponent } from './TerminalComponent'
+export { default as TerminalManager } from './TerminalManager'
+export { default as TerminalExample } from './TerminalExample'
+export { useTerminal } from './useTerminal'
+export type { TerminalConfig, TerminalSession } from './TerminalComponent'
+export type { UseTerminalReturn } from './useTerminal'

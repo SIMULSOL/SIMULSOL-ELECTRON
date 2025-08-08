@@ -75,7 +75,7 @@ export const LayoutProvider: React.FC<LayoutProviderProps> = ({
   }, [])
 
   const addPanel = useCallback((panel: PanelConfig) => {
-    setLayout(prevLayout => {
+    setLayout((prevLayout) => {
       const newLayout = {
         ...prevLayout,
         panels: {
@@ -99,11 +99,11 @@ export const LayoutProvider: React.FC<LayoutProviderProps> = ({
   }, [])
 
   const removePanel = useCallback((panelId: string) => {
-    setLayout(prevLayout => {
+    setLayout((prevLayout) => {
       const newPanels = { ...prevLayout.panels }
       const newVisibility = { ...prevLayout.visibility }
       const newSizes = { ...prevLayout.sizes }
-      
+
       delete newPanels[panelId]
       delete newVisibility[panelId]
       delete newSizes[panelId]
@@ -118,7 +118,7 @@ export const LayoutProvider: React.FC<LayoutProviderProps> = ({
   }, [])
 
   const resizePanel = useCallback((panelId: string, size: PanelSize) => {
-    setLayout(prevLayout => ({
+    setLayout((prevLayout) => ({
       ...prevLayout,
       sizes: {
         ...prevLayout.sizes,
@@ -131,7 +131,7 @@ export const LayoutProvider: React.FC<LayoutProviderProps> = ({
   }, [])
 
   const togglePanel = useCallback((panelId: string) => {
-    setLayout(prevLayout => ({
+    setLayout((prevLayout) => ({
       ...prevLayout,
       visibility: {
         ...prevLayout.visibility,
@@ -159,11 +159,7 @@ export const LayoutProvider: React.FC<LayoutProviderProps> = ({
     isLayoutReady
   }
 
-  return (
-    <LayoutContext.Provider value={contextValue}>
-      {children}
-    </LayoutContext.Provider>
-  )
+  return <LayoutContext.Provider value={contextValue}>{children}</LayoutContext.Provider>
 }
 
 export const useLayout = (): LayoutContextType => {
